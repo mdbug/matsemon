@@ -11,28 +11,27 @@ if(isset($_COOKIE['username'])){
 
 $tpl = new Template();
 $tpl->assign('title', 'register');
-$tpl->assign('body',
+$tpl->assign('nav', true);
+$tpl->assign('body', '
 
-/*     '<form action="./lib/register_post.php?<?php echo "var=12"; ?>" method="POST"> */
+<form action="./lib/register_post.php" method="POST">
+	<div class="form-group">
+		<label for="username">Username</label>
+		<input type="text" class="form-control" name="username" required></input>
+	</div>
+	<div class="form-group">
+		<label for="password">Password</label>
+		<input type="password" class="form-control" name="password" required></input>
+	</div>
+			
+	<input type="submit" class="btn btnX" name="login" value="Submit"></input>
+		
+</form>
 
-        '<form action="./lib/register_post.php" method="POST">
-			<input type="text" name="username"></input>
-			<input type="password" name="password"></input>
-			<select name="note">
-				<option value="1" selected="selected">sehr gut</option>
-				<option value="2">gut</option>
-				<option value="3">befriedigend</option>
-				<option value="4">ausreichend</option>
-				<option value="5">mangelhaft</option>
-				<option value="6">ungenügend</option>
-			</select>
-			<input type="submit" id="btn" value="Absenden"></input>
-		</form>
-		<div id="output"></div>
-		<button type="button">Clicky! Clicky!</button>
 		<br/>
 		<a href="login.php">Login</a>
-		<script src="scripts/register.js"></script>
-		'.$err.'<br/>'.$onl);
+
+		<br/>'.$onl.'
+');
 $tpl->display('templates/template.html');
 ?>

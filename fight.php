@@ -8,7 +8,7 @@ $tpl->assign('nav', true);
 $tpl->assign('body', '
 
 		
-		<div id="canvas" style="background-color:grey;border:2px solid black;height:250px;width:250px">
+		<div id="canvas">
 		
 		</div>
 		
