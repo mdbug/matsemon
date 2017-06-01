@@ -1,0 +1,124 @@
+<div id="signDiv">
+	Username: <input id="signDiv-username" type="text"></input><br/>
+	Password: <input id="signDiv-password" type="password"></input>
+	<button id="signDiv-signIn">Sign In</button>
+	<button id="signDiv-signUp">Sign Up</button>
+</div>
+
+<div id="gameDiv" style="display:none;float:left">
+	<div id="monsterDiv"></div>
+	<div id="chat-text" style="width:500px;height:100px;overflow-y:scroll">
+		<div>Hello!</div>
+	</div>
+	<form id="chat-form">
+		<input id="chat-input" type="text" style="width:500px"></input>
+	</form>
+</div>
+
+<div id="infoDiv" style="float:left;border:1px dashed black">
+	<div>hp:<p id="hp"></p></div>
+	<div>x:<p id="x"></p></div>
+	<div>y:<p id="y"></p></div>
+	<div>score:<p id="score"></p></div>
+</div>
+
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<script>
+	var socket = io();
+	
+	//sign
+	var signDiv = document.getElementById('signDiv');
+	var signDivUsername = document.getElementById('signDiv-username');
+	var signDivPassword = document.getElementById('signDiv-password');
+	var signDivSignIn = document.getElementById('signDiv-signIn');
+	var signDivSignUp = document.getElementById('signDiv-signUp');
+
+	
+	signDivSignIn.onclick = function(){
+		socket.emit('signIn', {username:signDivUsername.value, password:signDivPassword.value});
+	}
+	
+	signDivSignUp.onclick = function(){
+		socket.emit('signUp', {username:signDivUsername.value, password:signDivPassword.value});
+	}
+	
+	socket.on('signUpResponse', function(data){
+		if(data.success){
+			alert("Sign up successful.");
+		} else {
+			alert("Sign up unsuccessful.");
+		}
+	});
+	
+	socket.on('signInResponse', function(data){
+		if(data.success){
+			signDiv.style.display = 'none';
+			gameDiv.style.display = 'inline-block';
+		} else {
+			alert("Sign in unsuccessful.");
+		}
+	});
+	
+	//chat
+	var chatText = document.getElementById('chat-text');
+	var chatInput = document.getElementById('chat-input');
+	var chatForm = document.getElementById('chat-form');
+
+	socket.on('addToChat', function(data){
+		chatText.innerHTML += '<div>' + data + '</div>';
+		chatText.scrollTop = chatText.scrollHeight;
+	});
+	
+	socket.on('evalAnswer', function(data){
+		console.log(data);
+	});
+	
+	chatForm.onsubmit = function(e){
+		e.preventDefault(); //no refresh of page will be happen
+		if(chatInput.value[0] === '/')
+			socket.emit('evalServer', chatInput.value.slice(1));
+		else
+			socket.emit('sendMsgToServer', chatInput.value);
+		chatInput.value = '';
+	}
+	
+	//game
+
+	var Player = function(initPack){
+		var self = {};
+		self.id = initPack.id;
+		self.number = initPack.number;
+		self.score = initPack.score;
+		Player.list[self.id] = self;
+		return self;
+	}
+	Player.list = {};
+	
+	socket.on('init',function(data){
+		//package for logging in
+	});
+	
+	socket.on('update',function(data){
+		//update
+	});
+
+	socket.on('remove',function(data){
+		//package for logging out
+	});
+	
+	
+	
+	//SERVER, MAKE MY ATTACKS!
+	document.onkeyup = function(event){
+		if(event.keyCode === 68) //d
+			socket.emit('keyPress',{inputId:'right', state:false});
+		else if(event.keyCode === 83) //s
+			socket.emit('keyPress',{inputId:'down', state:false});
+		else if(event.keyCode === 65) //a
+			socket.emit('keyPress',{inputId:'left', state:false});
+		else if(event.keyCode === 87) //w
+			socket.emit('keyPress',{inputId:'up', state:false});
+	}
+</script>
+
+
