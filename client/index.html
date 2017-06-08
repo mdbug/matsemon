@@ -1,38 +1,217 @@
+<div id="playerInformation">
+</div>
+
+
 <div id="signDiv">
-	Username: <input id="signDiv-username" type="text"></input><br/>
+	Username: <input id="signDiv-username" type="text" focus></input><br/>
 	Password: <input id="signDiv-password" type="password"></input>
+	
 	<button id="signDiv-signIn">Sign In</button>
 	<button id="signDiv-signUp">Sign Up</button>
 </div>
 
-<div id="gameDiv" style="display:none;float:left">
-	<div id="monsterDiv"></div>
-	<div id="chat-text" style="width:500px;height:100px;overflow-y:scroll">
-		<div>Hello!</div>
+<div id="gameDiv" style="display:none;float:left;border:1px solid yellow;">
+	<div id="monsterDiv" style="border:1px solid red">MONSTER FIGHT IN HERE</div>
+	<div id="attacks" style="border:1px solid red">
+		<button id="atk1">ATK1</button>
+		<button id="atk2">ATK2</button>
+		<button id="atk3">ATK3</button>
+		<button id="atk4">ATK4</button>
+		<button id="sth">sth</button>
+		<button id="giveUp">give up</button>
 	</div>
-	<form id="chat-form">
-		<input id="chat-input" type="text" style="width:500px"></input>
-	</form>
+	
+	<div style="border:1px solid green">
+		<div id="chat-text" style="width:500px;height:100px;overflow-y:scroll;background:#DEDEDE;border:1px solid black;">
+			<!-- chat in here -->
+		</div>
+		<form id="chat-form">
+			<input id="chat-input" type="text" style="width:500px"></input>
+		</form>
+	</div>
+	
+	<div id="infoDiv" style="float:left;border:1px dashed black">
+		<div>my name:<p id="myName"></p></div>
+		<div>enemy name:<p id="enemyUsername"></p></div>
+		<div>fight id:<p id="fightId"></p></div>
+		<div>my hp:<p id="myHp"></p></div>
+		<div>enemy hp:<p id="enemyHp"></p></div>
+		<div>my lvl:<p id="myLvl"></p></div>
+		<div>enemy lvl:<p id="enemyLvl"></p></div>
+		<div>my guild:<p id="myGuild"></p></div>
+		<div>enemy guild:<p id="enemyGuild"></p></div>
+		<div>myTurn:<p id="myTurn"></p></div>
+	</div>
 </div>
 
-<div id="infoDiv" style="float:left;border:1px dashed black">
-	<div>hp:<p id="hp"></p></div>
-	<div>x:<p id="x"></p></div>
-	<div>y:<p id="y"></p></div>
-	<div>score:<p id="score"></p></div>
+
+
+
+
+<div id="opponentList" style="border:1px solid blue;display:none;">
+<h3>Click on these players to send them a challenge!</h3>
+	<div id="updateDiv" style="border:1px solid blue">
+		<!-- players you can attack in here -->
+	</div>
+</div>
+
+<div id="chooseDiv" style="visibility:hidden">
+	<p>Accept?</p>
+	<button id="yes">yes</button>
+	<button id="no">no</button>
 </div>
 
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 <script>
 	var socket = io();
 	
+	//local variable storage
+	var myUsername;
+	var enemyUsername;
+	var id;
+	var myHp;
+	var enemyHp;
+	var myGuild;
+	var enemyGuild;
+	var myLvl;
+	var enemyLvl;
+	var myTurn = false;
+	
+	socket.on('getMyUsername', function(data){
+		myUsername = data;
+		console.log('my username is set to ' + data);
+		document.getElementById('playerInformation').innerHTML = '<p>youre logged in as '+data+'</p>';
+	});
+	
+	socket.on('stats', function(data){
+		console.log('Connected clients:' + data.numClients);
+	});
+	
+	
+	var updateDiv = document.getElementById('updateDiv').innerHTML;
 	//sign
 	var signDiv = document.getElementById('signDiv');
 	var signDivUsername = document.getElementById('signDiv-username');
 	var signDivPassword = document.getElementById('signDiv-password');
 	var signDivSignIn = document.getElementById('signDiv-signIn');
 	var signDivSignUp = document.getElementById('signDiv-signUp');
-
+	var atk1 = document.getElementById('atk1');
+	var atk2 = document.getElementById('atk2');
+	var atk3 = document.getElementById('atk3');
+	var atk4 = document.getElementById('atk4');
+	var chooseDiv = document.getElementById('chooseDiv');
+	
+	//UPDATE: show who's signed in, executed on every interval, //challenge sb
+	socket.on('clear', function(){
+		document.getElementById('updateDiv').innerHTML = '';
+	});
+	socket.on('update', function(data){ //data is JSON
+		if(myUsername !== data.username && data.infight !== true){ //kämpfende oder mich selbst nicht als mögliche gegner anzeigen
+			document.getElementById('updateDiv').innerHTML += '<div id="'+data.username+'" class="possibleOpponent">'+data.username+'</div><br/>';
+			console.log('signed in - usernames: '+data.username);
+		}
+		
+		var possibleOpponents = document.getElementsByClassName('possibleOpponent');
+		for(var i = 0; i < possibleOpponents.length; i++){
+			possibleOpponents[i].onclick = function(){
+				console.log('this is this.id '+this.id);
+				socket.emit('challenge', {challengerUsername:myUsername, opponentUsername:this.id});
+			}
+		}
+	});
+	
+	
+	//get challenged by sb
+	socket.on('challenged', function(data){
+		console.log('you were challenged by '+data.challengerUsername+'!');
+		chooseDiv.style.visibility = 'visible';
+		chooseDiv.name = data.challengerUsername;
+		console.log('chooseDiv.name is now '+chooseDiv.name);
+	});
+	
+	//accept or deny challenge
+	//accept
+	document.getElementById('yes').onclick = function(){
+		socket.emit('challengeChoice', {choice:true,challengerUsername:chooseDiv.name,opponentUsername:myUsername});
+		chooseDiv.style.visibility = 'hidden'; //buttons nach entscheidung wieder ausblenden
+	}
+	
+	//deny
+	document.getElementById('no').onclick = function(){
+		socket.emit('challengeChoice', {choice:false,challengerUsername:chooseDiv.name,opponentUsername:myUsername});
+		chooseDiv.style.visibility = 'hidden'; //buttons nach entscheidung wieder ausblenden
+	}
+	
+	//your opponent chose yes or no
+	socket.on('challengeAnswer', function(data){
+		if(data.success){
+			console.log(data.opponentUsername+' agreed your challenge!');
+			gameDiv.style.display = 'inline-block';
+			//opponentlist ausblenden
+			document.getElementById('opponentList').style.display = 'none';
+		} else {
+			console.log(data.opponentUsername+' declined your challenge!');
+		}
+	});
+	
+	//beginFight - init!!
+	socket.on('beginFight', function(data){
+		id = data.id;
+		document.getElementById('fightId').innerHTML = id;
+		myHp = 100;
+		document.getElementById('myHp').innerHTML = myHp;
+		enemyHp = 100;
+		document.getElementById('enemyHp').innerHTML = enemyHp;
+		myLvl = data.mylvl;
+		document.getElementById('myLvl').innerHTML = myLvl;
+		enemyLvl = data.otherlvl;
+		document.getElementById('enemyLvl').innerHTML = enemyLvl;
+		myGuild = data.myguild;
+		document.getElementById('myGuild').innerHTML = myGuild;
+		enemyGuild = data.otherguild;
+		document.getElementById('enemyGuild').innerHTML = enemyGuild;
+		if(data.begin){
+			myTurn = true;
+		}
+		if(myUsername === data.opponentUsername){
+			enemyUsername = data.challengerUsername;
+		} else {
+			enemyUsername = data.opponentUsername;
+		}
+		document.getElementById('enemyUsername').innerHTML = enemyUsername;
+		
+		//opponentlist ausblenden
+		document.getElementById('opponentList').style.display = 'none';
+		//gamediv einblenden
+		gameDiv.style.display = 'inline-block';
+	});
+	
+	//give up
+	document.getElementById('giveUp').onclick = function(){
+		socket.emit('giveUp', {fightId : id,myname:myUsername,enemyname:enemyUsername});
+	}
+	
+	//endFight
+	socket.on('endFight', function(data){
+		console.log('Es wurde aufgegeben - Kampf wurde aus Liste gelöscht (fightId:'+data.fightId+')');
+		//opponentlist einblenden
+		document.getElementById('opponentList').style.display = 'inline-block';
+		//gamediv ausblenden
+		gameDiv.style.display = 'none';
+	});
+	
+	
+	
+	
+	//ATTACK BUTTONS ONCLICK
+	atk1.onclick = function(){
+		if(myTurn){
+			socket.emit('atk1', {});
+		}
+	}
+	atk2.onclick = function(){
+		socket.emit('atk2', {});
+	}
 	
 	signDivSignIn.onclick = function(){
 		socket.emit('signIn', {username:signDivUsername.value, password:signDivPassword.value});
@@ -42,6 +221,30 @@
 		socket.emit('signUp', {username:signDivUsername.value, password:signDivPassword.value});
 	}
 	
+	//take dmg
+	socket.on('takeDmg', function(data){
+		myHp-=data.amount;
+		document.getElementById('myHp').innerHTML = myHp; //IMPORTANT to show that you lost hp
+		myTurn = true; //now changes the turn
+		document.getElementById('myTurn').innerHTML = myTurn;
+	});
+	//enemy took dmg
+	socket.on('yourEnemyTookDmg', function(data){
+		enemyHp-=data.amount;
+		enemyHp.innerHTML = enemyHp; //IMPORTANT to show you that your enemy lost hp
+	});
+	//ATTACK HANDLING: DMG
+	socket.on('atkResponse', function(data){
+		if(data.success){
+			socket.emit('dealDamage', {enemy:enemyUsername,fightId:id});
+			myTurn = false;
+			myTurn.innerHTML = myTurn;
+		} else {
+			alert('server denied your attack!');
+		}
+	});
+	
+	//SIGNUPRESPONSE
 	socket.on('signUpResponse', function(data){
 		if(data.success){
 			alert("Sign up successful.");
@@ -53,7 +256,7 @@
 	socket.on('signInResponse', function(data){
 		if(data.success){
 			signDiv.style.display = 'none';
-			gameDiv.style.display = 'inline-block';
+			document.getElementById('opponentList').style.display = 'inline-block';
 		} else {
 			alert("Sign in unsuccessful.");
 		}
@@ -64,61 +267,66 @@
 	var chatInput = document.getElementById('chat-input');
 	var chatForm = document.getElementById('chat-form');
 
+	
+	var inChatInput = false;
+	
+	chatInput.onfocus = function(){
+		inChatInput = true;
+		console.log('inchat ist true');
+	}
+	
+	chatInput.onblur = function(){
+		inChatInput = false;
+		console.log('inchat ist false');
+	}
+	
 	socket.on('addToChat', function(data){
 		chatText.innerHTML += '<div>' + data + '</div>';
 		chatText.scrollTop = chatText.scrollHeight;
 	});
 	
+	
+	//DEBUG
 	socket.on('evalAnswer', function(data){
 		console.log(data);
 	});
 	
+	
+
+	
+	
 	chatForm.onsubmit = function(e){
 		e.preventDefault(); //no refresh of page will be happen
-		if(chatInput.value[0] === '/')
+		if(chatInput.value[0] === '/' && chatInput.value[1] === 'w'){ //WHISPER!
+			
+		} else if(chatInput.value[0] === '/'){
 			socket.emit('evalServer', chatInput.value.slice(1));
-		else
+		} else {
 			socket.emit('sendMsgToServer', chatInput.value);
+			
+		}
 		chatInput.value = '';
 	}
 	
 	//game
+	
 
-	var Player = function(initPack){
-		var self = {};
-		self.id = initPack.id;
-		self.number = initPack.number;
-		self.score = initPack.score;
-		Player.list[self.id] = self;
-		return self;
-	}
-	Player.list = {};
-	
-	socket.on('init',function(data){
-		//package for logging in
-	});
-	
-	socket.on('update',function(data){
-		//update
-	});
-
-	socket.on('remove',function(data){
-		//package for logging out
-	});
-	
 	
 	
 	//SERVER, MAKE MY ATTACKS!
-	document.onkeyup = function(event){
-		if(event.keyCode === 68) //d
-			socket.emit('keyPress',{inputId:'right', state:false});
-		else if(event.keyCode === 83) //s
-			socket.emit('keyPress',{inputId:'down', state:false});
-		else if(event.keyCode === 65) //a
-			socket.emit('keyPress',{inputId:'left', state:false});
-		else if(event.keyCode === 87) //w
-			socket.emit('keyPress',{inputId:'up', state:false});
-	}
+	/*document.onkeyup = function(event){
+		if(!inChatInput){
+			if(event.keyCode === 49 ) //1
+				socket.emit('atk1',{});
+			else if(event.keyCode === 50) //2
+				socket.emit('atk2',{});
+			else if(event.keyCode === 51) //3
+				socket.emit('atk3',{});
+			else if(event.keyCode === 52) //4
+				socket.emit('atk4',{});
+		}
+	}*/
+	
 </script>
 
 
