@@ -77,10 +77,11 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 			}	
 		});
 	});
+	
 	//GIVEUP
 	socket.on('giveUp', function(data){
-		PLAYER_LIST[data.myname].infight = false;
-		PLAYER_LIST[data.enemyname].infight = false;
+		PLAYER_LIST[data.myname].infight = undefined;
+		PLAYER_LIST[data.enemyname].infight = undefined;
 		PLAYER_LIST[data.myname].socket.emit('endFight', {fightId: data.fightId});
 		PLAYER_LIST[data.enemyname].socket.emit('endFight', {fightId: data.fightId});
 		delete FIGHT_LIST[data.fightId];
@@ -91,37 +92,40 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 	socket.on('challengeChoice', function(data){
 		if(data.choice){//create fight
 			FIGHT_LIST.push({
-				challengerUsername: data.challangerUsername,
+				challengerUsername: data.challengerUsername,
 				opponentUsername: data.opponentUsername,
 				challengerHp: 100,
 				opponentHp: 100,
 				turn: data.opponentUsername,
 			});
+			fightId = FIGHT_LIST.length-1;
 			console.log(data.challengerUsername + '  ' + data.opponentUsername);
 			//im kampf -> nicht mehr angreifbar
-			PLAYER_LIST[data.challengerUsername].infight = FIGHT_LIST.length-1;
-			PLAYER_LIST[data.opponentUsername].infight = FIGHT_LIST.length-1;
+			PLAYER_LIST[data.challengerUsername].infight = fightId;
+			PLAYER_LIST[data.opponentUsername].infight = fightId;
 			
 			PLAYER_LIST[data.challengerUsername].socket.emit('challengeAnswer', {opponentUsername:data.opponentUsername,success:true});
-			socket.emit('beginFight', { //init data for challenger
+			//herausforderer
+			PLAYER_LIST[data.challengerUsername].socket.emit('beginFight', { //init data for challenger
 				opponentUsername:data.opponentUsername, 
 				challengerUsername:data.challengerUsername,
 				id:fightId,
-				yourlvl: PLAYER_LIST[data.challengerUsername].lvl,
+				mylvl: PLAYER_LIST[data.challengerUsername].lvl,
 				otherlvl: PLAYER_LIST[data.opponentUsername].lvl,
-				yourguild: PLAYER_LIST[data.challengerUsername].guild,
+				myguild: PLAYER_LIST[data.challengerUsername].guild,
 				otherguild: PLAYER_LIST[data.opponentUsername].guild,
-				begin: false,
+				turn: data.opponentUsername,
 			});
-			PLAYER_LIST[data.opponentUsername].socket.emit('beginFight', { //init data for opponent
+			//herausgeforderter
+			socket.emit('beginFight', { //init data for opponent
 				opponentUsername:data.opponentUsername,
 				challengerUsername:data.challengerUsername,
 				id:fightId,
-				yourlvl: PLAYER_LIST[data.opponentUsername].lvl,
+				mylvl: PLAYER_LIST[data.opponentUsername].lvl,
 				otherlvl: PLAYER_LIST[data.challengerUsername].lvl,
-				yourguild: PLAYER_LIST[data.opponentUsername].guild,
+				myguild: PLAYER_LIST[data.opponentUsername].guild,
 				otherguild: PLAYER_LIST[data.challengerUsername].guild,
-				begin: true,
+				turn: data.opponentUsername,
 			});
 			fightId++;
 		} else {
@@ -172,28 +176,36 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 		}
 	});
 	
-	//deal damage
-	socket.on('dealDamage', function(data){
-		var amountOfDmg = 10;
-		PLAYER_LIST[data.enemy].socket.emit('takeDmg', {amount:amountOfDmg}); //attacked person will recognize
-		socket.emit('yourEnemyTookDmg', {amount:amountOfDmg}); //attacking person will recognize
-		if(FIGHT_LIST[data.fightId].opponentUsername === data.enemy){ //update in fight list
-			FIGHT_LIST[data.fightId].opponentHp -= amountOfDmg;
-		} else {
-			FIGHT_LIST[data.fightId].challengerHp -= amountOfDmg;
-		}
-	});
+
 	
 	//atack authentification
 	socket.on('atk1', function(){
-		atk1Name = PLAYER_LIST[socket.id].atk1;
 		atk1Dmg = PLAYER_LIST[socket.id].atk1Dmg;
-		atk1Cnt = PLAYER_LIST[socket.id].atk1Cnt;
-		if(PLAYER_LIST[socket.id].atk1Cnt > 0){
-			socket.emit('atkResponse', {success:true, atkCnt: atk1Cnt, atkName:atk1Name,atkDmg:atk1Dmg});
-		} else {
-			socket.emit('atkResponse', {success:false, atkCnt: 0, atkName:atk1Name,atkDmg:atk1Dmg});
+		fightId = PLAYER_LIST[socket.id].infight;
+		//ist er auch wirklich am zug???
+		if(hisTurn(socket.id,fightId)){ //name und fightId
+			
 		}
+		var newHp;
+		var nameOfTheOther = '';
+		console.log(fightId);
+		console.log(FIGHT_LIST);
+		if(FIGHT_LIST[fightId].opponentUsername === socket.id){ //opponent attacks
+			nameOfTheOther = FIGHT_LIST[fightId].challengerUsername;
+			FIGHT_LIST[fightId].challengerHp -= atk1Dmg;
+			newHp = FIGHT_LIST[fightId].challengerHp;
+		} else { //challenger attacks
+			nameOfTheOther = FIGHT_LIST[fightId].opponentUsername;
+			FIGHT_LIST[fightId].opponentHp -= atk1Dmg;
+			newHp = FIGHT_LIST[fightId].opponentHp;
+		}
+		FIGHT_LIST[fightId].turn = nameOfTheOther;
+		console.log(nameOfTheOther);
+		
+		PLAYER_LIST[nameOfTheOther].socket.emit('takeDmg', {newHp:newHp,turn:FIGHT_LIST[fightId].turn}); //attacked person will recognize
+		socket.emit('yourEnemyTookDmg', {newHp:newHp,turn:FIGHT_LIST[fightId].turn}); //attacking person will recognize
+		
+		
 	});
 	socket.on('atk2', function(){
 		atk2Name = PLAYER_LIST[socket.id].atk2;
@@ -207,6 +219,9 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 	});
 });
 
+var hisTurn = function(name,fightId){
+	return name === FIGHT_LIST[fightId].turn;
+}
 
 var calculateDmg = function(){
 	//TODO elements crit and stuff
@@ -237,6 +252,8 @@ setInterval(function(){
 	console.log('----- intervall -----');
 	io.emit('clear');
 	
+	
+	//TODO: spieler beim einloggen/aus dem kampf kommen hinzufügen, beim ausloggen/in den kampf gehen entfernen -> keine unnötigen datenpakete
 	var key;
 	for(key in PLAYER_LIST){
 		player = {
@@ -247,6 +264,10 @@ setInterval(function(){
 		};
 		io.emit('update', player); //JSON
 		console.log(player);
+	}
+	
+	for(var fightId in FIGHT_LIST){
+		PLAYER_LIST
 	}
 	
 

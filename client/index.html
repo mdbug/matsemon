@@ -40,7 +40,7 @@
 		<div>enemy lvl:<p id="enemyLvl"></p></div>
 		<div>my guild:<p id="myGuild"></p></div>
 		<div>enemy guild:<p id="enemyGuild"></p></div>
-		<div>myTurn:<p id="myTurn"></p></div>
+		<div>turn:<p id="turn"></p></div>
 	</div>
 </div>
 
@@ -75,7 +75,7 @@
 	var enemyGuild;
 	var myLvl;
 	var enemyLvl;
-	var myTurn = false;
+	var turn;
 	
 	socket.on('getMyUsername', function(data){
 		myUsername = data;
@@ -106,7 +106,7 @@
 		document.getElementById('updateDiv').innerHTML = '';
 	});
 	socket.on('update', function(data){ //data is JSON
-		if(myUsername !== data.username && data.infight !== true){ //kämpfende oder mich selbst nicht als mögliche gegner anzeigen
+		if(myUsername !== data.username && (data.infight === undefined || data.infight === false)){ //kämpfende oder mich selbst nicht als mögliche gegner anzeigen
 			document.getElementById('updateDiv').innerHTML += '<div id="'+data.username+'" class="possibleOpponent">'+data.username+'</div><br/>';
 			console.log('signed in - usernames: '+data.username);
 		}
@@ -156,6 +156,7 @@
 	
 	//beginFight - init!!
 	socket.on('beginFight', function(data){
+		document.getElementById('myName').innerHTML = myUsername;
 		id = data.id;
 		document.getElementById('fightId').innerHTML = id;
 		myHp = 100;
@@ -166,13 +167,18 @@
 		document.getElementById('myLvl').innerHTML = myLvl;
 		enemyLvl = data.otherlvl;
 		document.getElementById('enemyLvl').innerHTML = enemyLvl;
+		
 		myGuild = data.myguild;
 		document.getElementById('myGuild').innerHTML = myGuild;
 		enemyGuild = data.otherguild;
 		document.getElementById('enemyGuild').innerHTML = enemyGuild;
-		if(data.begin){
-			myTurn = true;
+		
+		turn = data.turn;
+		document.getElementById('turn').innerHTML = turn;
+		if(turn !== myUsername){
+			document.getElementById('attacks').style.visibility = 'hidden';
 		}
+	
 		if(myUsername === data.opponentUsername){
 			enemyUsername = data.challengerUsername;
 		} else {
@@ -205,13 +211,11 @@
 	
 	//ATTACK BUTTONS ONCLICK
 	atk1.onclick = function(){
-		if(myTurn){
-			socket.emit('atk1', {});
-		}
+		socket.emit('atk1', {});
+		//ausblenden
+		document.getElementById('attacks').style.visibility = 'hidden';
 	}
-	atk2.onclick = function(){
-		socket.emit('atk2', {});
-	}
+
 	
 	signDivSignIn.onclick = function(){
 		socket.emit('signIn', {username:signDivUsername.value, password:signDivPassword.value});
@@ -223,16 +227,15 @@
 	
 	//take dmg
 	socket.on('takeDmg', function(data){
-		myHp-=data.amount;
-		document.getElementById('myHp').innerHTML = myHp; //IMPORTANT to show that you lost hp
-		myTurn = true; //now changes the turn
-		document.getElementById('myTurn').innerHTML = myTurn;
+		document.getElementById('myHp').innerHTML = data.newHp; //IMPORTANT to show that you lost hp
+		//ich bin jetzt am zug!
+		document.getElementById('attacks').style.visibility = 'visible';
 	});
 	//enemy took dmg
 	socket.on('yourEnemyTookDmg', function(data){
-		enemyHp-=data.amount;
-		enemyHp.innerHTML = enemyHp; //IMPORTANT to show you that your enemy lost hp
+		document.getElementById('enemyHp').innerHTML = data.newHp;
 	});
+	
 	//ATTACK HANDLING: DMG
 	socket.on('atkResponse', function(data){
 		if(data.success){
@@ -314,7 +317,7 @@
 	
 	
 	//SERVER, MAKE MY ATTACKS!
-	/*document.onkeyup = function(event){
+	document.onkeyup = function(event){
 		if(!inChatInput){
 			if(event.keyCode === 49 ) //1
 				socket.emit('atk1',{});
@@ -325,7 +328,7 @@
 			else if(event.keyCode === 52) //4
 				socket.emit('atk4',{});
 		}
-	}*/
+	}
 	
 </script>
 
