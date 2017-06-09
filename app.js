@@ -199,8 +199,8 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 	//whisp
 	socket.on('sendWspToServer', function(data){
 		if(PLAYER_LIST[data.to] != undefined){
-			socket.emit('seeWhisper', {message:socket.id+": "+data.message});
-			PLAYER_LIST[data.to].socket.emit('seeWhisper', {message:socket.id+": "+data.message});
+			socket.emit('seeWhisper', {message:"flüstern an "+data.to+": "+data.message});
+			PLAYER_LIST[data.to].socket.emit('seeWhisper2', {message:socket.id+": "+data.message});
 		} else {
 			socket.emit('whisperFail', {to:data.to});
 		}

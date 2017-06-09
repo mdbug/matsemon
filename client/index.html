@@ -353,7 +353,9 @@
 	socket.on('seeWhisper', function(data){
 		addToChat(data.message, 'brown');
 	});
-
+	socket.on('seeWhisper2', function(data){
+		addToChat(data.message, 'brown');
+	});
 	
 	//verschiedene Chataktionen
 	chatForm.onsubmit = function(e){
