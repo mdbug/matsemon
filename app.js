@@ -59,12 +59,18 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 	console.log('Connected clients:', numClients);
 	//SIGNIN
 	socket.on('signIn', function(data){
-		console.log('onclick sign in button (serverside)');
 		isValidPassword(data,function(res){
 			if(res){ //wird eingeloggt
 				db.player.find({username:data.username},function(err,res){
 					//res.length == 1
 					var username = res[0].username; //take username of logged in player from db
+					ready({username:username}); //shows up in opponent list of the otherguild
+					for(var key in PLAYER_LIST){//needs to get entrys of all possible opponents at this time, //todo - all in one array, now: every single
+						if(PLAYER_LIST[key].infight != false || PLAYER_LIST[key].infight != undefined){
+							socket.emit('opponentInit', {username:key});
+							console.log('im in opponentinit serverside');						
+						}
+					}
 					socket.emit('getMyUsername', username);
 					socket.id = username; //set id of socket from logged in player to his username
 					res[0].socket = socket; //
@@ -82,11 +88,15 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 	
 	//GIVEUP
 	socket.on('giveUp', function(data){
-		PLAYER_LIST[data.myname].infight = undefined;
-		PLAYER_LIST[data.enemyname].infight = undefined;
+		PLAYER_LIST[data.myname].infight = false;
+		PLAYER_LIST[data.enemyname].infight = false;
 		PLAYER_LIST[data.myname].socket.emit('endFight', {fightId: data.fightId});
 		PLAYER_LIST[data.enemyname].socket.emit('endFight', {fightId: data.fightId});
-		delete FIGHT_LIST[data.fightId];
+		setTimeout(function(){
+			ready({username:data.myname});
+			ready({username:data.enemyname});
+			delete FIGHT_LIST[data.fightId];	
+		},3000);
 	});
 	
 	
@@ -105,6 +115,9 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 			//im kampf -> nicht mehr angreifbar
 			PLAYER_LIST[data.challengerUsername].infight = fightId;
 			PLAYER_LIST[data.opponentUsername].infight = fightId;
+			//alternativer weg->ready/busy... falls funktioniert, kann infight attribut überall gelöscht werden!
+			busy({username:data.challengerUsername});
+			busy({username:data.opponentUsername});
 			
 			PLAYER_LIST[data.challengerUsername].socket.emit('challengeAnswer', {opponentUsername:data.opponentUsername,success:true});
 			//herausforderer
@@ -137,7 +150,7 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 	//CHALLENGE
 	socket.on('challenge', function(data){
 		console.log(data);
-		PLAYER_LIST[data.opponentUsername].socket.emit('challenged', {challengerUsername:data.challengerUsername});
+		PLAYER_LIST[data.opponentUsername].socket.emit('challenged', {challengerUsername:socket.username});
 	});
 	
 	//DEBUG
@@ -152,7 +165,8 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 	//DISCONNECT
 	socket.on('disconnect',function(){
 		delete PLAYER_LIST[socket.id];
-			numClients--;
+		busy({username:socket.id});
+		numClients--;
 		io.emit('stats', {numClients: numClients});
 		console.log('Connected clients:', numClients);
 	});
@@ -248,29 +262,21 @@ var isUsernameTaken = function(data,cb){
 	});
 }
 
-
-
-setInterval(function(){
-	console.log('----- intervall -----');
-	io.emit('clear');
-	
-	
-	//TODO: spieler beim einloggen/aus dem kampf kommen hinzufügen, beim ausloggen/in den kampf gehen entfernen -> keine unnötigen datenpakete
-	var key;
-	for(key in PLAYER_LIST){
-		player = {
-			infight : PLAYER_LIST[key].infight,
-			lvl : PLAYER_LIST[key].lvl,
-			guild : PLAYER_LIST[key].guild,
-			username : PLAYER_LIST[key].username,
-		};
-		io.emit('update', player); //JSON
-		console.log(player);
+//show everybody he came on / out of fight
+function ready(data){
+	for(var key in PLAYER_LIST){
+		if(PLAYER_LIST[key].username !== data.username){
+			PLAYER_LIST[key].socket.emit('ready', data);
+		}
 	}
-	
-	for(var fightId in FIGHT_LIST){
-		PLAYER_LIST
-	}
-	
+}
 
-},2000);
+//show everybody he went off / went into fight
+function busy(data){
+	for(var key in PLAYER_LIST){
+		if(PLAYER_LIST[key].username !== data.username){
+			PLAYER_LIST[key].socket.emit('busy', data);
+		}
+	}
+}
+	

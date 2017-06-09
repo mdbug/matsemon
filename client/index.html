@@ -101,25 +101,29 @@
 	var atk4 = document.getElementById('atk4');
 	var chooseDiv = document.getElementById('chooseDiv');
 	
-	//UPDATE: show who's signed in, executed on every interval, //challenge sb
-	socket.on('clear', function(){
-		document.getElementById('updateDiv').innerHTML = '';
-	});
-	socket.on('update', function(data){ //data is JSON
-		if(myUsername !== data.username && (data.infight === undefined || data.infight === false)){ //kämpfende oder mich selbst nicht als mögliche gegner anzeigen
-			document.getElementById('updateDiv').innerHTML += '<div id="'+data.username+'" class="possibleOpponent">'+data.username+'</div><br/>';
-			console.log('signed in - usernames: '+data.username);
+	//UPDATE busy or ready
+	socket.on('ready', function(data){ //data is JSON
+		document.getElementById('updateDiv').innerHTML += '<div id="'+data.username+'" class="possibleOpponent">'+data.username+'</div><br/>';
+		document.getElementById(data.username).onclick = function(){ //diesem einen div ein onclick event hinzufügen
+			socket.emit('challenge', {opponentUsername:this.id});
 		}
+	});
+	socket.on('busy', function(data){ //data is JSON
+		var elem = document.getElementById(data.username);
+		//try{
+			elem.parentNode.removeChild(elem); 
+		//} catch (error e){
 		
-		var possibleOpponents = document.getElementsByClassName('possibleOpponent');
-		for(var i = 0; i < possibleOpponents.length; i++){
-			possibleOpponents[i].onclick = function(){
-				console.log('this is this.id '+this.id);
-				socket.emit('challenge', {challengerUsername:myUsername, opponentUsername:this.id});
-			}
+		//}
+	});
+	socket.on('opponentInit', function(data){ //data is JSON
+		console.log('im in opponentinit');
+		console.log(data.username);		
+		document.getElementById('updateDiv').innerHTML += '<div id="'+data.username+'" class="possibleOpponent">'+data.username+'</div><br/>';
+		document.getElementById(data.username).onclick = function(){ //diesem einen div ein onclick event hinzufügen
+			socket.emit('challenge', {opponentUsername:this.id});
 		}
 	});
-	
 	//get challenged by sb
 	socket.on('challenged', function(data){
 		console.log('you were challenged by '+data.challengerUsername+'!');
