@@ -48,10 +48,9 @@ var addUser = function(data,cb){
 var DEBUG = true;
 var io = require('socket.io')(serv,{});
 
-
-FIGHT_LIST = [];
+var FIGHT_LIST = [];
 var fightId = 0;
-PLAYER_LIST = [];
+var PLAYER_LIST = [];
 var numClients = 0;
 io.sockets.on('connection', function(socket){ //a player connects and creates a socket to interact with
 	
@@ -60,6 +59,7 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 	console.log('Connected clients:', numClients);
 	//SIGNIN
 	socket.on('signIn', function(data){
+		console.log('onclick sign in button (serverside)');
 		isValidPassword(data,function(res){
 			if(res){ //wird eingeloggt
 				db.player.find({username:data.username},function(err,res){
@@ -72,8 +72,10 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 					console.log(PLAYER_LIST);
 				});
 				socket.emit('signInResponse', {success:true});
+				console.log('sign in response, success: true');
 			} else { // wird nicht eingeloggt
 				socket.emit('signInResponse', {success:false});
+				console.log('sign in response, success: false');
 			}	
 		});
 	});

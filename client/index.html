@@ -21,15 +21,6 @@
 		<button id="giveUp">give up</button>
 	</div>
 	
-	<div style="border:1px solid green">
-		<div id="chat-text" style="width:500px;height:100px;overflow-y:scroll;background:#DEDEDE;border:1px solid black;">
-			<!-- chat in here -->
-		</div>
-		<form id="chat-form">
-			<input id="chat-input" type="text" style="width:500px"></input>
-		</form>
-	</div>
-	
 	<div id="infoDiv" style="float:left;border:1px dashed black">
 		<div>my name:<p id="myName"></p></div>
 		<div>enemy name:<p id="enemyUsername"></p></div>
@@ -42,6 +33,15 @@
 		<div>enemy guild:<p id="enemyGuild"></p></div>
 		<div>turn:<p id="turn"></p></div>
 	</div>
+</div>
+
+<div id="chat" style="border:1px solid green;display:none">
+	<div id="chat-text" style="width:500px;height:100px;overflow-y:scroll;background:#DEDEDE;border:1px solid black;">
+		<!-- chat in here -->
+	</div>
+	<form id="chat-form">
+		<input id="chat-input" type="text" style="width:500px"></input>
+	</form>
 </div>
 
 
@@ -87,9 +87,9 @@
 		console.log('Connected clients:' + data.numClients);
 	});
 	
-	
+	//variables
 	var updateDiv = document.getElementById('updateDiv').innerHTML;
-	//sign
+	
 	var signDiv = document.getElementById('signDiv');
 	var signDivUsername = document.getElementById('signDiv-username');
 	var signDivPassword = document.getElementById('signDiv-password');
@@ -119,7 +119,6 @@
 			}
 		}
 	});
-	
 	
 	//get challenged by sb
 	socket.on('challenged', function(data){
@@ -156,27 +155,22 @@
 	
 	//beginFight - init!!
 	socket.on('beginFight', function(data){
-		document.getElementById('myName').innerHTML = myUsername;
-		id = data.id;
-		document.getElementById('fightId').innerHTML = id;
-		myHp = 100;
-		document.getElementById('myHp').innerHTML = myHp;
-		enemyHp = 100;
-		document.getElementById('enemyHp').innerHTML = enemyHp;
-		myLvl = data.mylvl;
-		document.getElementById('myLvl').innerHTML = myLvl;
-		enemyLvl = data.otherlvl;
-		document.getElementById('enemyLvl').innerHTML = enemyLvl;
-		
-		myGuild = data.myguild;
-		document.getElementById('myGuild').innerHTML = myGuild;
-		enemyGuild = data.otherguild;
-		document.getElementById('enemyGuild').innerHTML = enemyGuild;
+		addToChat('Fight starts!');
+		document.getElementById('myName').innerHTML = myUsername; //TODO: send UR name and HIS name each different to both players -> no if else on client
+		document.getElementById('fightId').innerHTML = data.id;
+		document.getElementById('myHp').innerHTML = 100;
+		document.getElementById('enemyHp').innerHTML = 100;
+		document.getElementById('myLvl').innerHTML = data.mylvl;
+		document.getElementById('enemyLvl').innerHTML = data.otherlvl;
+		document.getElementById('myGuild').innerHTML =  data.myguild;
+		document.getElementById('enemyGuild').innerHTML = data.otherguild;
 		
 		turn = data.turn;
 		document.getElementById('turn').innerHTML = turn;
 		if(turn !== myUsername){
 			document.getElementById('attacks').style.visibility = 'hidden';
+		} else {
+			document.getElementById('attacks').style.visibility = 'visible';
 		}
 	
 		if(myUsername === data.opponentUsername){
@@ -199,11 +193,14 @@
 	
 	//endFight
 	socket.on('endFight', function(data){
+		addToChat('Fight is over');
 		console.log('Es wurde aufgegeben - Kampf wurde aus Liste gelöscht (fightId:'+data.fightId+')');
-		//opponentlist einblenden
-		document.getElementById('opponentList').style.display = 'inline-block';
-		//gamediv ausblenden
-		gameDiv.style.display = 'none';
+		setTimeout(function(){ 
+			//opponentlist einblenden
+			document.getElementById('opponentList').style.display = 'inline-block';
+			//gamediv ausblenden
+			gameDiv.style.display = 'none';
+		}, 3000);
 	});
 	
 	
@@ -256,8 +253,10 @@
 		}
 	});
 	
+	//SIGN IN RESPONSE
 	socket.on('signInResponse', function(data){
 		if(data.success){
+			document.getElementById('chat').style.display = 'inline-block';
 			signDiv.style.display = 'none';
 			document.getElementById('opponentList').style.display = 'inline-block';
 		} else {
@@ -283,9 +282,13 @@
 		console.log('inchat ist false');
 	}
 	
-	socket.on('addToChat', function(data){
+	function addToChat(data){
 		chatText.innerHTML += '<div>' + data + '</div>';
 		chatText.scrollTop = chatText.scrollHeight;
+	}
+	
+	socket.on('addToChat', function(data){
+		addToChat(data);
 	});
 	
 	
@@ -297,23 +300,24 @@
 	
 
 	
-	
+	//verschiedene Chataktionen
 	chatForm.onsubmit = function(e){
 		e.preventDefault(); //no refresh of page will be happen
-		if(chatInput.value[0] === '/' && chatInput.value[1] === 'w'){ //WHISPER!
+		if(chatInput.value[0] === '/' && chatInput.value[1] === 'w' && chatInput.value[2] === ' ' && chatInput.value[3] !== ' '){ //WHISPER!
+			var	to = chatInput.slice(3);
+			var message = '';
+			socket.emit('sendWspToServer', {message:message,to:to});
 			
+			
+			//else
+			//fehlermeldung
 		} else if(chatInput.value[0] === '/'){
-			socket.emit('evalServer', chatInput.value.slice(1));
+			socket.emit('evalServer', chatInput.value.slice(1)); //EVAL
 		} else {
-			socket.emit('sendMsgToServer', chatInput.value);
-			
+			socket.emit('sendMsgToServer', chatInput.value);//EVERYONE
 		}
 		chatInput.value = '';
 	}
-	
-	//game
-	
-
 	
 	
 	//SERVER, MAKE MY ATTACKS!
@@ -327,6 +331,8 @@
 				socket.emit('atk3',{});
 			else if(event.keyCode === 52) //4
 				socket.emit('atk4',{});
+			else if(event.keyCode === 13) //Enter
+				socket.emit('signIn', {username:signDivUsername.value, password:signDivPassword.value});
 		}
 	}
 	
