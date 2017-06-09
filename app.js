@@ -54,13 +54,14 @@ var PLAYER_LIST = [];
 var numClients = 0;
 io.sockets.on('connection', function(socket){ //a player connects and creates a socket to interact with
 	
-	numClients++;
+	
 	io.emit('stats',{numClients : numClients});
 	console.log('Connected clients:', numClients);
 	//SIGNIN
 	socket.on('signIn', function(data){
 		isValidPassword(data,function(res){
 			if(res){ //wird eingeloggt
+				numClients++;
 				if(PLAYER_LIST[data.username] != undefined){ //already logged in!
 					socket.emit('alreadyLoggedIn', {});
 				} else {
