@@ -192,12 +192,18 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 	socket.on('sendMsgToServer', function(data){
 		console.log(PLAYER_LIST);
 		for(var player in PLAYER_LIST){
-			PLAYER_LIST[player].socket.emit('addToChat', data);
+			PLAYER_LIST[player].socket.emit('addToChat', socket.id+': '+data);
 		}
 	});
-	
-
-	
+	//whisp
+	socket.on('sendWspToServer', function(data){
+		if(PLAYER_LIST[data.to] != undefined){
+			socket.emit('seeWhisper', {message:socket.id+": "+data.message});
+			PLAYER_LIST[data.to].socket.emit('seeWhisper', {message:socket.id+": "+data.message});
+		} else {
+			socket.emit('whisperFail', {to:data.to});
+		}
+	});
 	//atack authentification
 	socket.on('atk1', function(){
 		atk1Dmg = PLAYER_LIST[socket.id].atk1Dmg;

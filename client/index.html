@@ -303,6 +303,10 @@
 		chatText.innerHTML += '<div>' + data + '</div>';
 		chatText.scrollTop = chatText.scrollHeight;
 	}
+	function addToChat(data, color){
+		chatText.innerHTML += '<div style="color:'+color+'">' + data + '</div>';
+		chatText.scrollTop = chatText.scrollHeight;
+	}
 	
 	socket.on('addToChat', function(data){
 		addToChat(data);
@@ -314,21 +318,40 @@
 		console.log(data);
 	});
 	
+	//whisp fail
+	socket.on('whisperFail', function(data){
+		addToChat(data.to+' ist nicht online oder existiert nicht. :(', 'brown');
+	});
 	
+	//seeWhisp
+	socket.on('seeWhisper', function(data){
+		addToChat(data.message, 'brown');
+	});
 
 	
 	//verschiedene Chataktionen
 	chatForm.onsubmit = function(e){
 		e.preventDefault(); //no refresh of page will be happen
 		if(chatInput.value[0] === '/' && chatInput.value[1] === 'w' && chatInput.value[2] === ' ' && chatInput.value[3] !== ' '){ //WHISPER!
-			var	to = chatInput.slice(3);
-			var message = '';
-			socket.emit('sendWspToServer', {message:message,to:to});
-			
-			
-			//else
-			//fehlermeldung
-		} else if(chatInput.value[0] === '/'){
+			var len = 0;
+			for(var el in chatInput.value.split(" ")){
+				len++;
+			}
+			console.log('der array vom whispversuch hat die länge: '+len);
+			if(len>=3){
+				//"/w sth msg" should only contain /w AND to AND msg -> array of at least 3 elements
+				console.log('kommt in den whisp if rein'+chatInput.value.split(" ").length);
+				var split = chatInput.value.split(" ");
+				var msg = '';
+				for(var i = 2; i < split.length; i++){
+					msg+=split[i]+" ";
+				}
+				console.log('Msg:'+msg);
+				socket.emit('sendWspToServer', {message:msg,to:split[1]});
+			} else {
+				addToChat('Du musst eine Nachricht angeben, wenn du versuchst etwas zu flüstern! :o', 'brown');
+			}
+		} else if(chatInput.value[0] === '/' && chatInput.value[1] !== 'w'){ //beim eval darf kein w am anfang stehen.....
 			socket.emit('evalServer', chatInput.value.slice(1)); //EVAL
 		} else {
 			socket.emit('sendMsgToServer', chatInput.value);//EVERYONE
