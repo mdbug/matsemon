@@ -56,7 +56,7 @@
 </div>
 
 <div id="chooseDiv" style="visibility:hidden">
-	<p>Accept?</p>
+	<h3 id="acceptQuestion">Accept?</h3>
 	<button id="yes">yes</button>
 	<button id="no">no</button>
 </div>
@@ -100,6 +100,9 @@
 	var atk3 = document.getElementById('atk3');
 	var atk4 = document.getElementById('atk4');
 	var chooseDiv = document.getElementById('chooseDiv');
+	var yes = document.getElementById('yes');
+	var no = document.getElementById('no');
+	var acceptQuestion = document.getElementById('acceptQuestion');
 	
 	//UPDATE busy or ready
 	socket.on('ready', function(data){ //data is JSON
@@ -128,6 +131,7 @@
 	socket.on('challenged', function(data){
 		console.log('you were challenged by '+data.challengerUsername+'!');
 		chooseDiv.style.visibility = 'visible';
+		acceptQuestion.innerHTML = data.challengerUsername + ' asked you for a challenge - Will you agree?';
 		chooseDiv.name = data.challengerUsername;
 		console.log('chooseDiv.name is now '+chooseDiv.name);
 	});
@@ -198,17 +202,26 @@
 	//endFight
 	socket.on('endFight', function(data){
 		addToChat('Fight is over');
+		addToChat('... 3 ...');
 		console.log('Es wurde aufgegeben - Kampf wurde aus Liste gelöscht (fightId:'+data.fightId+')');
-		setTimeout(function(){ 
-			//opponentlist einblenden
-			document.getElementById('opponentList').style.display = 'inline-block';
-			//gamediv ausblenden
-			gameDiv.style.display = 'none';
-		}, 3000);
+		setTimeout(function(){
+			addToChat('... 2 ...');
+			setTimeout(function(){
+				addToChat('... 1 ...');
+				setTimeout(function(){
+					//opponentlist einblenden
+					document.getElementById('opponentList').style.display = 'inline-block';
+					//gamediv ausblenden
+					gameDiv.style.display = 'none';
+				},1000);
+			},1000);
+		}, 1000);
 	});
+
 	
-	
-	
+	socket.on('alreadyLoggedIn', function(){
+		alert('Du bist bereits woanders eingeloggt! Bitte logge dich dort zuerst aus. ^o^');
+	});
 	
 	//ATTACK BUTTONS ONCLICK
 	atk1.onclick = function(){

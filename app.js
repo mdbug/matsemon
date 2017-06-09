@@ -11,7 +11,7 @@ app.get('/', function(req, res) {
 
 app.use('/client', express.static(__dirname + '/client'));
 
-serv.listen(2000);
+serv.listen(8080);
 console.log("Server started.");
 
 /***************** game code **************************/
@@ -61,24 +61,28 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 	socket.on('signIn', function(data){
 		isValidPassword(data,function(res){
 			if(res){ //wird eingeloggt
-				db.player.find({username:data.username},function(err,res){
-					//res.length == 1
-					var username = res[0].username; //take username of logged in player from db
-					ready({username:username}); //shows up in opponent list of the otherguild
-					for(var key in PLAYER_LIST){//needs to get entrys of all possible opponents at this time, //todo - all in one array, now: every single
-						if(PLAYER_LIST[key].infight != false || PLAYER_LIST[key].infight != undefined){
-							socket.emit('opponentInit', {username:key});
-							console.log('im in opponentinit serverside');						
+				if(PLAYER_LIST[data.username] != undefined){ //already logged in!
+					socket.emit('alreadyLoggedIn', {});
+				} else {
+					db.player.find({username:data.username},function(err,res){
+						//res.length == 1
+						var username = res[0].username; //take username of logged in player from db
+						ready({username:username}); //shows up in opponent list of the otherguild
+						for(var key in PLAYER_LIST){//needs to get entrys of all possible opponents at this time, //todo - all in one array, now: every single
+							if(PLAYER_LIST[key].infight == false || PLAYER_LIST[key].infight >= 0){
+								socket.emit('opponentInit', {username:key});
+								console.log('im in opponentinit serverside');						
+							}
 						}
-					}
-					socket.emit('getMyUsername', username);
-					socket.id = username; //set id of socket from logged in player to his username
-					res[0].socket = socket; //
-					PLAYER_LIST[username] = res[0];
-					console.log(PLAYER_LIST);
-				});
-				socket.emit('signInResponse', {success:true});
-				console.log('sign in response, success: true');
+						socket.emit('getMyUsername', username);
+						socket.id = username; //set id of socket from logged in player to his username
+						res[0].socket = socket; //
+						PLAYER_LIST[username] = res[0];
+						console.log(PLAYER_LIST);
+					});
+					socket.emit('signInResponse', {success:true});
+					console.log('sign in response, success: true');
+				}
 			} else { // wird nicht eingeloggt
 				socket.emit('signInResponse', {success:false});
 				console.log('sign in response, success: false');
@@ -105,52 +109,52 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 		if(data.choice){//create fight
 			FIGHT_LIST.push({
 				challengerUsername: data.challengerUsername,
-				opponentUsername: data.opponentUsername,
+				opponentUsername: socket.id,
 				challengerHp: 100,
 				opponentHp: 100,
-				turn: data.opponentUsername,
+				turn: socket.id,
 			});
 			fightId = FIGHT_LIST.length-1;
-			console.log(data.challengerUsername + '  ' + data.opponentUsername);
+			console.log(data.challengerUsername + '  ' + socket.id);
 			//im kampf -> nicht mehr angreifbar
 			PLAYER_LIST[data.challengerUsername].infight = fightId;
-			PLAYER_LIST[data.opponentUsername].infight = fightId;
+			PLAYER_LIST[socket.id].infight = fightId;
 			//alternativer weg->ready/busy... falls funktioniert, kann infight attribut überall gelöscht werden!
 			busy({username:data.challengerUsername});
-			busy({username:data.opponentUsername});
+			busy({username:socket.id});
 			
-			PLAYER_LIST[data.challengerUsername].socket.emit('challengeAnswer', {opponentUsername:data.opponentUsername,success:true});
+			PLAYER_LIST[data.challengerUsername].socket.emit('challengeAnswer', {opponentUsername:socket.id,success:true});
 			//herausforderer
 			PLAYER_LIST[data.challengerUsername].socket.emit('beginFight', { //init data for challenger
-				opponentUsername:data.opponentUsername, 
+				opponentUsername:socket.id, 
 				challengerUsername:data.challengerUsername,
 				id:fightId,
 				mylvl: PLAYER_LIST[data.challengerUsername].lvl,
-				otherlvl: PLAYER_LIST[data.opponentUsername].lvl,
+				otherlvl: PLAYER_LIST[socket.id].lvl,
 				myguild: PLAYER_LIST[data.challengerUsername].guild,
-				otherguild: PLAYER_LIST[data.opponentUsername].guild,
-				turn: data.opponentUsername,
+				otherguild: PLAYER_LIST[socket.id].guild,
+				turn: socket.id,
 			});
 			//herausgeforderter
 			socket.emit('beginFight', { //init data for opponent
-				opponentUsername:data.opponentUsername,
+				opponentUsername:socket.id,
 				challengerUsername:data.challengerUsername,
 				id:fightId,
-				mylvl: PLAYER_LIST[data.opponentUsername].lvl,
+				mylvl: PLAYER_LIST[socket.id].lvl,
 				otherlvl: PLAYER_LIST[data.challengerUsername].lvl,
-				myguild: PLAYER_LIST[data.opponentUsername].guild,
+				myguild: PLAYER_LIST[socket.id].guild,
 				otherguild: PLAYER_LIST[data.challengerUsername].guild,
-				turn: data.opponentUsername,
+				turn: socket.id,
 			});
 			fightId++;
 		} else {
-			PLAYER_LIST[data.challengerUsername].socket.emit('challengeAnswer', {opponentUsername:data.opponentUsername,success:false});
+			PLAYER_LIST[data.challengerUsername].socket.emit('challengeAnswer', {opponentUsername:socket.id,success:false});
 		}
 	});
 	//CHALLENGE
 	socket.on('challenge', function(data){
-		console.log(data);
-		PLAYER_LIST[data.opponentUsername].socket.emit('challenged', {challengerUsername:socket.username});
+		console.log('challenge question went to server: '+data);
+		PLAYER_LIST[data.opponentUsername].socket.emit('challenged', {challengerUsername:socket.id});
 	});
 	
 	//DEBUG
