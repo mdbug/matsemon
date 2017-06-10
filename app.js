@@ -207,31 +207,32 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 	});
 	//atack authentification
 	socket.on('atk1', function(){
-		atk1Dmg = PLAYER_LIST[socket.id].atk1Dmg;
-		fightId = PLAYER_LIST[socket.id].infight;
-		//ist er auch wirklich am zug???
-		if(hisTurn(socket.id,fightId)){ //name und fightId
+		if(PLAYER_LIST[socket.id] != undefined){ //spieler muss on sein zum angreifen
+			atk1Dmg = PLAYER_LIST[socket.id].atk1Dmg;
+			fightId = PLAYER_LIST[socket.id].infight;
+			//ist er auch wirklich am zug???
+			if(hisTurn(socket.id,fightId)){ //name und fightId
+				
+			}
+			var newHp;
+			var nameOfTheOther = '';
+			console.log(fightId);
+			console.log(FIGHT_LIST);
+			if(FIGHT_LIST[fightId].opponentUsername === socket.id){ //opponent attacks
+				nameOfTheOther = FIGHT_LIST[fightId].challengerUsername;
+				FIGHT_LIST[fightId].challengerHp -= atk1Dmg;
+				newHp = FIGHT_LIST[fightId].challengerHp;
+			} else { //challenger attacks
+				nameOfTheOther = FIGHT_LIST[fightId].opponentUsername;
+				FIGHT_LIST[fightId].opponentHp -= atk1Dmg;
+				newHp = FIGHT_LIST[fightId].opponentHp;
+			}
+			FIGHT_LIST[fightId].turn = nameOfTheOther;
+			console.log(nameOfTheOther);
 			
+			PLAYER_LIST[nameOfTheOther].socket.emit('takeDmg', {newHp:newHp,turn:FIGHT_LIST[fightId].turn}); //attacked person will recognize
+			socket.emit('yourEnemyTookDmg', {newHp:newHp,turn:FIGHT_LIST[fightId].turn}); //attacking person will recognize
 		}
-		var newHp;
-		var nameOfTheOther = '';
-		console.log(fightId);
-		console.log(FIGHT_LIST);
-		if(FIGHT_LIST[fightId].opponentUsername === socket.id){ //opponent attacks
-			nameOfTheOther = FIGHT_LIST[fightId].challengerUsername;
-			FIGHT_LIST[fightId].challengerHp -= atk1Dmg;
-			newHp = FIGHT_LIST[fightId].challengerHp;
-		} else { //challenger attacks
-			nameOfTheOther = FIGHT_LIST[fightId].opponentUsername;
-			FIGHT_LIST[fightId].opponentHp -= atk1Dmg;
-			newHp = FIGHT_LIST[fightId].opponentHp;
-		}
-		FIGHT_LIST[fightId].turn = nameOfTheOther;
-		console.log(nameOfTheOther);
-		
-		PLAYER_LIST[nameOfTheOther].socket.emit('takeDmg', {newHp:newHp,turn:FIGHT_LIST[fightId].turn}); //attacked person will recognize
-		socket.emit('yourEnemyTookDmg', {newHp:newHp,turn:FIGHT_LIST[fightId].turn}); //attacking person will recognize
-		
 		
 	});
 	socket.on('atk2', function(){

@@ -1,6 +1,6 @@
 <html>
 <body>
-
+<!--
 <audio id="audio1" autoplay="true" controls="true" hidden loop src="http://horde.sytes.net/matsemon/client/sound/edelwei.wav">
 </audio>
 <audio id="audio2" controls hidden src="http://horde.sytes.net/matsemon/client/sound/death.wav">
@@ -10,7 +10,7 @@
 <audio id="audio4" controls hidden src="http://horde.sytes.net/matsemon/client/sound/goal.wav">
 </audio>
 <audio id="audio5" controls hidden loop src="http://horde.sytes.net/matsemon/client/sound/slapayda-sunset-by-schabau.wav">
-</audio>
+</audio>-->
 <audio id="audio6" controls hidden src="http://www.downloadfreesound.com/wp-content/uploads/2013/08/Beep8.wav">
 </audio>
 
@@ -52,11 +52,11 @@
 </div>
 
 <div id="chat" style="border:1px solid green;display:none">
-	<div id="chat-text" style="width:500px;height:100px;overflow-y:scroll;background:#DEDEDE;border:1px solid black;">
+	<div id="chat-text" style="width:500px;height:100px;overflow-y:scroll;background:#282828;border:1px solid black;">
 		<!-- chat in here -->
 	</div>
 	<form id="chat-form">
-		<input id="chat-input" type="text" style="width:500px"></input>
+		<input id="chat-input" type="text" style="width:500px;background:#424242;border:1px solid #282828"></input>
 	</form>
 </div>
 
@@ -81,11 +81,11 @@
 <script>
 	var socket = io();
 	
-	var audio1 = document.getElementById('audio1');
+	/*var audio1 = document.getElementById('audio1');
 	var audio2 = document.getElementById('audio2');
 	var audio3 = document.getElementById('audio3');
 	var audio4 = document.getElementById('audio4');
-	var audio5 = document.getElementById('audio5');
+	var audio5 = document.getElementById('audio5');*/
 	var audio6 = document.getElementById('audio6');
 	//local variable storage
 	var myUsername;
@@ -136,7 +136,7 @@
 	socket.on('busy', function(data){ //data is JSON
 		var elem = document.getElementById(data.username);
 		//try{
-			elem.parentNode.removeChild(elem); 
+			elem.parentNode.removeChild(elem); //hier wird ein error geschmissen wenn jemand disconnected, der nicht auf der opponent list sichtbar war - soweit bekannt, sollte vorerst kein problem darstellen, evtl try & catch?
 		//} catch (error e){
 		
 		//}
@@ -185,7 +185,7 @@
 	
 	//beginFight - init!!
 	socket.on('beginFight', function(data){
-		addToChat('Fight starts!');
+		addToChat('Fight starts!', infoColor);
 		document.getElementById('myName').innerHTML = myUsername; //TODO: send UR name and HIS name each different to both players -> no if else on client
 		document.getElementById('fightId').innerHTML = data.id;
 		document.getElementById('myHp').innerHTML = 100;
@@ -223,13 +223,13 @@
 	
 	//endFight
 	socket.on('endFight', function(data){
-		addToChat('Fight is over');
-		addToChat('... 3 ...');
+		addToChat('Fight is over', '#fffcc4');
+		addToChat('... 3 ...', '#fffcc4');
 		console.log('Es wurde aufgegeben - Kampf wurde aus Liste gelöscht (fightId:'+data.fightId+')');
 		setTimeout(function(){
-			addToChat('... 2 ...');
+			addToChat('... 2 ...', '#fffcc4');
 			setTimeout(function(){
-				addToChat('... 1 ...');
+				addToChat('... 1 ...', '#fffcc4');
 				setTimeout(function(){
 					//opponentlist einblenden
 					document.getElementById('opponentList').style.display = 'inline-block';
@@ -295,8 +295,8 @@
 	//SIGN IN RESPONSE
 	socket.on('signInResponse', function(data){
 		if(data.success){
-			audio1.pause();
-			audio5.play();
+			/*audio1.pause();
+			audio5.play();*/
 			document.getElementById('chat').style.display = 'inline-block';
 			signDiv.style.display = 'none';
 			document.getElementById('opponentList').style.display = 'inline-block';
@@ -323,11 +323,6 @@
 		console.log('inchat ist false');
 	}
 	
-	function addToChat(data){
-		audio6.play();
-		chatText.innerHTML += '<div>' + data + '</div>';
-		chatText.scrollTop = chatText.scrollHeight;
-	}
 	function addToChat(data, color){
 		audio6.play();
 		chatText.innerHTML += '<div style="color:'+color+'">' + data + '</div>';
@@ -335,7 +330,7 @@
 	}
 	
 	socket.on('addToChat', function(data){
-		addToChat(data);
+		addToChat(data, '#c4ffdc');
 	});
 	
 	
@@ -346,15 +341,15 @@
 	
 	//whisp fail
 	socket.on('whisperFail', function(data){
-		addToChat(data.to+' ist nicht online oder existiert nicht. :(', 'brown');
+		addToChat(data.to+' ist nicht online oder existiert nicht. :(', '#ffc4d3');
 	});
 	
 	//seeWhisp
 	socket.on('seeWhisper', function(data){
-		addToChat(data.message, 'brown');
+		addToChat(data.message, '#c4caff');
 	});
 	socket.on('seeWhisper2', function(data){
-		addToChat(data.message, 'brown');
+		addToChat(data.message, '#c4caff');
 	});
 	
 	//verschiedene Chataktionen
@@ -366,7 +361,6 @@
 				for(var el in chatInput.value.split(" ")){
 					len++;
 				}
-				console.log('der array vom whispversuch hat die länge: '+len);
 				if(len>=3){
 					//"/w sth msg" should only contain /w AND to AND msg -> array of at least 3 elements
 					console.log('kommt in den whisp if rein'+chatInput.value.split(" ").length);
@@ -378,7 +372,7 @@
 					console.log('Msg:'+msg);
 					socket.emit('sendWspToServer', {message:msg,to:split[1]});
 				} else {
-					addToChat('Du musst eine Nachricht angeben, wenn du versuchst etwas zu flüstern! :o', 'brown');
+					addToChat('Du musst eine Nachricht angeben, wenn du versuchst etwas zu flüstern! :o', '#ffc4d3');
 				}
 			} else if(chatInput.value[0] === '/' && chatInput.value[1] !== 'w'){ //beim eval darf kein w am anfang stehen.....
 				socket.emit('evalServer', chatInput.value.slice(1)); //EVAL
@@ -391,7 +385,7 @@
 	
 	
 	//SERVER, MAKE MY ATTACKS!
-/*	document.onkeyup = function(event){
+	document.onkeyup = function(event){
 		if(!inChatInput){
 			if(event.keyCode === 49 ) //1
 				socket.emit('atk1',{});
@@ -404,8 +398,13 @@
 			else if(event.keyCode === 13) //Enter
 				socket.emit('signIn', {username:signDivUsername.value, password:signDivPassword.value});
 		}
-	}*/
+	}
 	
+	
+	var infoColor = '#fffcc4';
+	var msgColor = '';
+	var wspColor = '';
+	var warnColor = '';
 </script>
 </body>
 </html>
