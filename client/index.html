@@ -1,392 +1,205 @@
+<!-- IMMER AUSGIEBIG KOMMENTIEREN! :-) -->
+<!DOCTYPE html>
 <html>
+<head>
+	<meta charset="UTF-8">
+	<rel src="style.css" type="text/css">
+	<title>MA-TSE-MON! - the beginning</title>
+</head>
 <body>
-<!--
-<audio id="audio1" autoplay="true" controls="true" hidden loop src="http://horde.sytes.net/matsemon/client/sound/edelwei.wav">
-</audio>
-<audio id="audio2" controls hidden src="http://horde.sytes.net/matsemon/client/sound/death.wav">
-</audio>
-<audio id="audio3" controls hidden src="http://horde.sytes.net/matsemon/client/sound/start.wav">
-</audio>
-<audio id="audio4" controls hidden src="http://horde.sytes.net/matsemon/client/sound/goal.wav">
-</audio>
-<audio id="audio5" controls hidden loop src="http://horde.sytes.net/matsemon/client/sound/slapayda-sunset-by-schabau.wav">
-</audio>-->
-<audio id="audio6" controls hidden src="http://www.downloadfreesound.com/wp-content/uploads/2013/08/Beep8.wav">
-</audio>
-
-<div id="playerInformation">
-</div>
-
-
-<div id="signDiv">
-	Username: <input id="signDiv-username" type="text" autofocus></input><br/>
-	Password: <input id="signDiv-password" type="password"></input>
-	
-	<button id="signDiv-signIn">Sign In</button>
-	<button id="signDiv-signUp">Sign Up</button>
-</div>
-
-<div id="gameDiv" style="display:none;float:left;border:1px solid yellow;">
-	<div id="monsterDiv" style="border:1px solid red">MONSTER FIGHT IN HERE</div>
-	<div id="attacks" style="border:1px solid red">
-		<button id="atk1">ATK1</button>
-		<button id="atk2">ATK2</button>
-		<button id="atk3">ATK3</button>
-		<button id="atk4">ATK4</button>
-		<button id="sth">sth</button>
-		<button id="giveUp">give up</button>
-	</div>
-	
-	<div id="infoDiv" style="float:left;border:1px dashed black">
-		<div>my name:<p id="myName"></p></div>
-		<div>enemy name:<p id="enemyUsername"></p></div>
-		<div>fight id:<p id="fightId"></p></div>
-		<div>my hp:<p id="myHp"></p></div>
-		<div>enemy hp:<p id="enemyHp"></p></div>
-		<div>my lvl:<p id="myLvl"></p></div>
-		<div>enemy lvl:<p id="enemyLvl"></p></div>
-		<div>my guild:<p id="myGuild"></p></div>
-		<div>enemy guild:<p id="enemyGuild"></p></div>
-		<div>turn:<p id="turn"></p></div>
-	</div>
-</div>
-
-<div id="chat" style="border:1px solid green;display:none">
-	<div id="chat-text" style="width:500px;height:100px;overflow-y:scroll;background:#282828;border:1px solid black;">
-		<!-- chat in here -->
-	</div>
-	<form id="chat-form">
-		<input id="chat-input" type="text" style="width:500px;background:#424242;border:1px solid #282828"></input>
-	</form>
-</div>
-
-
-
-
-
-<div id="opponentList" style="border:1px solid blue;display:none;">
-<h3>Click on these players to send them a challenge!</h3>
-	<div id="updateDiv" style="border:1px solid blue">
-		<!-- players you can attack in here -->
-	</div>
-</div>
-
-<div id="chooseDiv" style="visibility:hidden">
-	<h3 id="acceptQuestion">Accept?</h3>
-	<button id="yes">yes</button>
-	<button id="no">no</button>
-</div>
+	<div id="containerDiv"><!-- HTML-STRUKTUR-->
+		<div id="headerDiv" style="">
+			<h1><code>MA-TSE-MON!</code></h1>
+			<h2><code id="headerDivMyUsername"></code></h2>
+		</div>
+		<!-- AUDIO -->
+		<!--
+		<audio id="audio1" autoplay="true" controls="true" hidden loop src="http://horde.sytes.net/matsemon/client/sound/edelwei.wav">
+		</audio>
+		<audio id="audio2" controls hidden src="http://horde.sytes.net/matsemon/client/sound/death.wav">
+		</audio>
+		<audio id="audio3" controls hidden src="http://horde.sytes.net/matsemon/client/sound/start.wav">
+		</audio>
+		<audio id="audio4" controls hidden src="http://horde.sytes.net/matsemon/client/sound/goal.wav">
+		</audio>
+		<audio id="audio5" controls hidden loop src="http://horde.sytes.net/matsemon/client/sound/slapayda-sunset-by-schabau.wav">
+		</audio>-->
+		<audio id="audio6" controls hidden src="http://www.downloadfreesound.com/wp-content/uploads/2013/08/Beep8.wav">
+		</audio>
+		<!-- SIGN -->
+		<div id="signDiv">
+			Username: <input id="signDivUsername" type="text" autofocus></input><br/>
+			Password: <input id="signDivPassword" type="password"></input>
+			
+			<button id="signDivSignIn">Sign In</button>
+			<button id="signDivSignUp">Sign Up</button>
+		</div>
+		<!-- CHAT -->
+		<div id="chatDiv" style="border:1px solid green;display:none">
+			<div id="chatDivText" style="width:500px;height:100px;overflow-y:scroll;background:#282828;border:1px solid black;">
+				<!-- chat in here -->
+			</div>
+			<form id="chatDivForm">
+				<input id="chatDivFormInput" type="text" style="width:500px;background:#424242;border:1px solid #282828"></input>
+			</form>
+		</div>
+		<!-- OPPONENT -->
+		<div id="opponentDiv" style="border:1px solid blue;display:none;">
+		<h3>Click on these players to send them a challenge!</h3>
+			<div id="opponentDivList" style="border:1px solid blue">
+				<!-- players you can attack in here -->
+			</div>
+		</div>
+		<!-- CONFIRMBOX -->
+		<div id="chooseDiv" style="display:none">
+			<h3 id="chooseDivConfirm">Accept?</h3>
+			<button id="chooseDivConfirmYes">yes</button>
+			<button id="chooseDivConfirmNo">no</button>
+		</div>
+		<!-- FIGHT -->
+		<div id="fightDiv" style="display:none;float:left;border:1px solid yellow;">
+			<div id="fightDivAnimations" style="border:1px solid red">MONSTER FIGHT IN HERE</div>
+			<div id="fightDivAttacks" style="border:1px solid red">
+				<button id="fightDivAttacksButton1">fightDivAttacksButton1</button>
+				<button id="fightDivAttacksButton2">fightDivAttacksButton1</button>
+				<button id="fightDivAttacksButton3">btn3</button>
+				<button id="fightDivAttacksButton4">btn4 (give up)</button>
+			</div>
+			<div id="fightDivInfo" style="float:left;border:1px dashed black">
+				<div>my name:<p id="fightDivInfoMyUsername"></p></div>
+				<div>enemy name:<p id="fightDivInfoEnemyUsername"></p></div>
+				<div>my guild:<p id="fightDivInfoMyGuild"></p></div>
+				<div>enemy guild:<p id="fightDivInfoEnemyGuild"></p></div>
+				<div>my lvl:<p id="fightDivInfoMyLvl"></p></div>
+				<div>enemy lvl:<p id="fightDivInfoEnemyLvl"></p></div>
+				<div>my hp:<p id="fightDivInfoMyHp"></p></div>
+				<div>enemy hp:<p id="fightDivInfoEnemyHp"></p></div>
+				<div>fight id:<p id="fightDivInfoFightId"></p></div>
+				<div>turn:<p id="fightDivInfoTurn"></p></div>
+			</div>
+		</div>
+		<div id="infoMessageDiv"></div>
+	</div><!-- END OF #containerDiv -->
 
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 <script>
 	var socket = io();
-	
-	/*var audio1 = document.getElementById('audio1');
+	/**************************************** VARIABLES BEGIN ***************************************************/
+	/* DOM-ELEMENTS BY ID */
+	/* NAMEN ENTSPRECHEN EXAKT IHRER ID! BITTE SO BEIBEHALTEN! */
+	var containerDiv = document.getElementById('containerDiv');
+	/* DEN DOM-ELEMENTEN KANN PER VARIABLEN-NAME EIN EVENT HINZUGEFÜGT WERDEN ( xyzDiv-xyz-xyz.onclick = function(){} ) */
+	var headerDiv = document.getElementById('headerDiv');
+	var headerDivMyUsername = document.getElementById('headerDivMyUsername');
+	/*auskommentiert, weil server nicht online auf den die src-verweise hinführen.
+	var audio1 = document.getElementById('audio1');
 	var audio2 = document.getElementById('audio2');
 	var audio3 = document.getElementById('audio3');
 	var audio4 = document.getElementById('audio4');
 	var audio5 = document.getElementById('audio5');*/
 	var audio6 = document.getElementById('audio6');
-	//local variable storage
-	var myUsername;
-	var enemyUsername;
-	var id;
-	var myHp;
-	var enemyHp;
-	var myGuild;
-	var enemyGuild;
-	var myLvl;
-	var enemyLvl;
-	var turn;
-	
-	socket.on('getMyUsername', function(data){
-		myUsername = data;
-		console.log('my username is set to ' + data);
-		document.getElementById('playerInformation').innerHTML = '<p>youre logged in as '+data+'</p>';
-	});
-	
-	socket.on('stats', function(data){
-		console.log('Connected clients:' + data.numClients);
-	});
-	
-	//variables
-	var updateDiv = document.getElementById('updateDiv').innerHTML;
-	
 	var signDiv = document.getElementById('signDiv');
-	var signDivUsername = document.getElementById('signDiv-username');
-	var signDivPassword = document.getElementById('signDiv-password');
-	var signDivSignIn = document.getElementById('signDiv-signIn');
-	var signDivSignUp = document.getElementById('signDiv-signUp');
-	var atk1 = document.getElementById('atk1');
-	var atk2 = document.getElementById('atk2');
-	var atk3 = document.getElementById('atk3');
-	var atk4 = document.getElementById('atk4');
+	var signDivUsername = document.getElementById('signDivUsername');
+	var signDivPassword = document.getElementById('signDivPassword');
+	var signDivSignIn = document.getElementById('signDivSignIn');
+	var signDivSignUp = document.getElementById('signDivSignUp');
+	var chatDiv = document.getElementById('chatDiv');
+	var chatDivText = document.getElementById('chatDivText');
+	var chatDivForm = document.getElementById('chatDivForm');
+	var chatDivFormInput = document.getElementById('chatDivFormInput');
+	var opponentDiv = document.getElementById('opponentDiv');
+	var opponentDivList = document.getElementById('opponentDivList');
 	var chooseDiv = document.getElementById('chooseDiv');
-	var yes = document.getElementById('yes');
-	var no = document.getElementById('no');
-	var acceptQuestion = document.getElementById('acceptQuestion');
-	
-	//UPDATE busy or ready
-	socket.on('ready', function(data){ //data is JSON
-		document.getElementById('updateDiv').innerHTML += '<div id="'+data.username+'" class="possibleOpponent">'+data.username+'</div><br/>';
-		document.getElementById(data.username).onclick = function(){ //diesem einen div ein onclick event hinzufügen
-			socket.emit('challenge', {opponentUsername:this.id});
-		}
-	});
-	socket.on('busy', function(data){ //data is JSON
-		var elem = document.getElementById(data.username);
-		//try{
-			elem.parentNode.removeChild(elem); //hier wird ein error geschmissen wenn jemand disconnected, der nicht auf der opponent list sichtbar war - soweit bekannt, sollte vorerst kein problem darstellen, evtl try & catch?
-		//} catch (error e){
-		
-		//}
-	});
-	socket.on('opponentInit', function(data){ //data is JSON
-		console.log('im in opponentinit');
-		console.log(data.username);		
-		document.getElementById('updateDiv').innerHTML += '<div id="'+data.username+'" class="possibleOpponent">'+data.username+'</div><br/>';
-		document.getElementById(data.username).onclick = function(){ //diesem einen div ein onclick event hinzufügen
-			socket.emit('challenge', {opponentUsername:this.id});
-		}
-	});
-	//get challenged by sb
-	socket.on('challenged', function(data){
-		console.log('you were challenged by '+data.challengerUsername+'!');
-		chooseDiv.style.visibility = 'visible';
-		acceptQuestion.innerHTML = data.challengerUsername + ' asked you for a challenge - Will you agree?';
-		chooseDiv.name = data.challengerUsername;
-		console.log('chooseDiv.name is now '+chooseDiv.name);
-	});
-	
-	//accept or deny challenge
-	//accept
-	document.getElementById('yes').onclick = function(){
-		socket.emit('challengeChoice', {choice:true,challengerUsername:chooseDiv.name,opponentUsername:myUsername});
-		chooseDiv.style.visibility = 'hidden'; //buttons nach entscheidung wieder ausblenden
+	var chooseDivConfirm = document.getElementById('chooseDivConfirm');
+	var chooseDivConfirmYes = document.getElementById('chooseDivConfirmYes');
+	var chooseDivConfirmNo = document.getElementById('chooseDivConfirmNo');
+	var fightDiv = document.getElementById('fightDiv');
+	var fightDivAnimations = document.getElementById('fightDivAnimations');
+	var fightDivAttacks = document.getElementById('fightDivAttacks');
+	var fightDivAttacksButton1 = document.getElementById('fightDivAttacksButton1');
+	var fightDivAttacksButton2 = document.getElementById('fightDivAttacksButton2');
+	var fightDivAttacksButton3 = document.getElementById('fightDivAttacksButton3');
+	var fightDivAttacksButton4 = document.getElementById('fightDivAttacksButton4');
+	var fightDivInfo = document.getElementById('fightDivInfo');
+	var fightDivInfoMyUsername = document.getElementById('fightDivInfoMyUsername');
+	var fightDivInfoEnemyUsername = document.getElementById('fightDivInfoEnemyUsername');
+	var fightDivInfoMyGuild = document.getElementById('fightDivInfoMyGuild');
+	var fightDivInfoEnemyGuild = document.getElementById('fightDivInfoEnemyGuild');
+	var fightDivInfoMyLvl = document.getElementById('fightDivInfoMyLvl');
+	var fightDivInfoEnemyLvl = document.getElementById('fightDivInfoEnemyLvl');
+	var fightDivInfoMyHp = document.getElementById('fightDivInfoMyHp');
+	var fightDivInfoEnemyHp = document.getElementById('fightDivInfoEnemyHp');
+	var fightDivInfoFightId = document.getElementById('fightDivInfoFightId');
+	var fightDivInfoTurn = document.getElementById('fightDivInfoTurn');
+	var infoMessageDiv = document.getElementById('infoMessageDiv');
+	/* COLORS */
+	var normalColor = 'white'; //normale Farbe zb für den "All-Chat" - weiß
+	var whisperColor = '#42f1f4'; //Flüster-Farbe - türkis
+	var guildColor = '#30e52d'; //Gilden-Farbe - grün
+	var infoColor = '#e5ff00'; //bei Informationen - gelb
+	var warningColor = '#ffbf00'; //bei Warnungen - orange
+	var errorColor = '#ff0000' //bei Fehlern - rot
+	/* OTHER */
+	var inChatInput = false; //Zum Herausfinden, ob der Spieler gerade etwas im Chat eintippt
+	var loggedIn = false;
+	/******************************************* VARIABLES END ************************************************/
+	/******************************************* FUNCTIONS BEGIN ******************************************************/
+	function addToChat(data, color){
+		audio6.play();
+		chatDivText.innerHTML += '<div style="color:'+color+'">' + data + '</div>';
+		chatDivText.scrollTop = chatDivText.scrollHeight;
 	}
-	
-	//deny
-	document.getElementById('no').onclick = function(){
-		socket.emit('challengeChoice', {choice:false,challengerUsername:chooseDiv.name,opponentUsername:myUsername});
-		chooseDiv.style.visibility = 'hidden'; //buttons nach entscheidung wieder ausblenden
-	}
-	
-	//your opponent chose yes or no
-	socket.on('challengeAnswer', function(data){
-		if(data.success){
-			console.log(data.opponentUsername+' agreed your challenge!');
-			gameDiv.style.display = 'inline-block';
-			//opponentlist ausblenden
-			document.getElementById('opponentList').style.display = 'none';
-		} else {
-			console.log(data.opponentUsername+' declined your challenge!');
-		}
-	});
-	
-	//beginFight - init!!
-	socket.on('beginFight', function(data){
-		addToChat('Fight starts!', infoColor);
-		document.getElementById('myName').innerHTML = myUsername; //TODO: send UR name and HIS name each different to both players -> no if else on client
-		document.getElementById('fightId').innerHTML = data.id;
-		document.getElementById('myHp').innerHTML = 100;
-		document.getElementById('enemyHp').innerHTML = 100;
-		document.getElementById('myLvl').innerHTML = data.mylvl;
-		document.getElementById('enemyLvl').innerHTML = data.otherlvl;
-		document.getElementById('myGuild').innerHTML =  data.myguild;
-		document.getElementById('enemyGuild').innerHTML = data.otherguild;
-		
-		turn = data.turn;
-		document.getElementById('turn').innerHTML = turn;
-		if(turn !== myUsername){
-			document.getElementById('attacks').style.visibility = 'hidden';
-		} else {
-			document.getElementById('attacks').style.visibility = 'visible';
-		}
-	
-		if(myUsername === data.opponentUsername){
-			enemyUsername = data.challengerUsername;
-		} else {
-			enemyUsername = data.opponentUsername;
-		}
-		document.getElementById('enemyUsername').innerHTML = enemyUsername;
-		
-		//opponentlist ausblenden
-		document.getElementById('opponentList').style.display = 'none';
-		//gamediv einblenden
-		gameDiv.style.display = 'inline-block';
-	});
-	
-	//give up
-	document.getElementById('giveUp').onclick = function(){
-		socket.emit('giveUp', {fightId : id,myname:myUsername,enemyname:enemyUsername});
-	}
-	
-	//endFight
-	socket.on('endFight', function(data){
-		addToChat('Fight is over', '#fffcc4');
-		addToChat('... 3 ...', '#fffcc4');
-		console.log('Es wurde aufgegeben - Kampf wurde aus Liste gelöscht (fightId:'+data.fightId+')');
-		setTimeout(function(){
-			addToChat('... 2 ...', '#fffcc4');
-			setTimeout(function(){
-				addToChat('... 1 ...', '#fffcc4');
-				setTimeout(function(){
-					//opponentlist einblenden
-					document.getElementById('opponentList').style.display = 'inline-block';
-					//gamediv ausblenden
-					gameDiv.style.display = 'none';
-				},1000);
-			},1000);
-		}, 1000);
-	});
-
-	
-	socket.on('alreadyLoggedIn', function(){
-		alert('Du bist bereits woanders eingeloggt! Bitte logge dich dort zuerst aus. ^o^');
-	});
-	
-	//ATTACK BUTTONS ONCLICK
-	atk1.onclick = function(){
-		socket.emit('atk1', {});
-		//ausblenden
-		document.getElementById('attacks').style.visibility = 'hidden';
-	}
-
-	
-	signDivSignIn.onclick = function(){
-		socket.emit('signIn', {username:signDivUsername.value, password:signDivPassword.value});
-	}
-	
+	/******************************************** FUNCTIONS END ***************************************************/
+	/******************************************** CLIENT-EVENTS BEGIN ***********************************************/
 	signDivSignUp.onclick = function(){
 		socket.emit('signUp', {username:signDivUsername.value, password:signDivPassword.value});
 	}
-	
-	//take dmg
-	socket.on('takeDmg', function(data){
-		document.getElementById('myHp').innerHTML = data.newHp; //IMPORTANT to show that you lost hp
-		//ich bin jetzt am zug!
-		document.getElementById('attacks').style.visibility = 'visible';
-	});
-	//enemy took dmg
-	socket.on('yourEnemyTookDmg', function(data){
-		document.getElementById('enemyHp').innerHTML = data.newHp;
-	});
-	
-	//ATTACK HANDLING: DMG
-	socket.on('atkResponse', function(data){
-		if(data.success){
-			socket.emit('dealDamage', {enemy:enemyUsername,fightId:id});
-			myTurn = false;
-			myTurn.innerHTML = myTurn;
-		} else {
-			alert('server denied your attack!');
-		}
-	});
-	
-	//SIGNUPRESPONSE
-	socket.on('signUpResponse', function(data){
-		if(data.success){
-			alert("Sign up successful.");
-		} else {
-			alert("Sign up unsuccessful.");
-		}
-	});
-	
-	//SIGN IN RESPONSE
-	socket.on('signInResponse', function(data){
-		if(data.success){
-			/*audio1.pause();
-			audio5.play();*/
-			document.getElementById('chat').style.display = 'inline-block';
-			signDiv.style.display = 'none';
-			document.getElementById('opponentList').style.display = 'inline-block';
-		} else {
-			alert("Sign in unsuccessful.");
-		}
-	});
-	
-	//chat
-	var chatText = document.getElementById('chat-text');
-	var chatInput = document.getElementById('chat-input');
-	var chatForm = document.getElementById('chat-form');
-
-	
-	var inChatInput = false;
-	
-	chatInput.onfocus = function(){
+	signDivSignIn.onclick = function(){
+		socket.emit('signIn', {username:signDivUsername.value, password:signDivPassword.value});
+	}
+	chooseDivConfirmYes.onclick = function(){
+		socket.emit('challengeChoice', {choice:true, challengerUsername:chooseDiv.name});
+		chooseDiv.style.display = 'none'; //buttons nach entscheidung wieder ausblenden
+	}
+	chooseDivConfirmNo.onclick = function(){
+		socket.emit('challengeChoice', {choice:false, challengerUsername:chooseDiv.name});
+		chooseDiv.style.display = 'none'; //buttons nach entscheidung wieder ausblenden
+	}	
+	chatDivFormInput.onfocus = function(){
 		inChatInput = true;
-		console.log('inchat ist true');
 	}
-	
-	chatInput.onblur = function(){
+	chatDivFormInput.onblur = function(){
 		inChatInput = false;
-		console.log('inchat ist false');
 	}
-	
-	function addToChat(data, color){
-		audio6.play();
-		chatText.innerHTML += '<div style="color:'+color+'">' + data + '</div>';
-		chatText.scrollTop = chatText.scrollHeight;
-	}
-	
-	socket.on('addToChat', function(data){
-		addToChat(data, '#c4ffdc');
-	});
-	
-	
-	//DEBUG
-	socket.on('evalAnswer', function(data){
-		console.log(data);
-	});
-	
-	//whisp fail
-	socket.on('whisperFail', function(data){
-		addToChat(data.to+' ist nicht online oder existiert nicht. :(', '#ffc4d3');
-	});
-	
-	//seeWhisp
-	socket.on('seeWhisper', function(data){
-		addToChat(data.message, '#c4caff');
-	});
-	socket.on('seeWhisper2', function(data){
-		addToChat(data.message, '#c4caff');
-	});
-	
-	//verschiedene Chataktionen
-	chatForm.onsubmit = function(e){
+	chatDivForm.onsubmit = function(e){
 		e.preventDefault(); //no refresh of page will be happen
-		if(chatInput.value !== ''){
-			if(chatInput.value[0] === '/' && chatInput.value[1] === 'w' && chatInput.value[2] === ' ' && chatInput.value[3] !== ' '){ //WHISPER!
+		if(chatDivFormInput.value !== ''){
+			if(chatDivFormInput.value[0] === '/' && chatDivFormInput.value[1] === 'w' && chatDivFormInput.value[2] === ' ' && chatDivFormInput.value[3] !== ' '){ //WHISPER!
 				var len = 0;
-				for(var el in chatInput.value.split(" ")){
+				for(var el in chatDivFormInput.value.split(" ")){
 					len++;
 				}
 				if(len>=3){
 					//"/w sth msg" should only contain /w AND to AND msg -> array of at least 3 elements
-					console.log('kommt in den whisp if rein'+chatInput.value.split(" ").length);
-					var split = chatInput.value.split(" ");
+					var split = chatDivFormInput.value.split(" ");
 					var msg = '';
 					for(var i = 2; i < split.length; i++){
 						msg+=split[i]+" ";
 					}
-					console.log('Msg:'+msg);
 					socket.emit('sendWspToServer', {message:msg,to:split[1]});
 				} else {
-					addToChat('Du musst eine Nachricht angeben, wenn du versuchst etwas zu flüstern! :o', '#ffc4d3');
+					addToChat('Du musst eine Nachricht angeben, wenn du versuchst etwas zu flüstern! :o', warningColor);
 				}
-			} else if(chatInput.value[0] === '/' && chatInput.value[1] !== 'w'){ //beim eval darf kein w am anfang stehen.....
-				socket.emit('evalServer', chatInput.value.slice(1)); //EVAL
+			} else if(chatDivFormInput.value[0] === '/' && chatDivFormInput.value[1] !== 'w'){ //beim eval darf kein w am anfang stehen.....
+				socket.emit('evalServer', chatDivFormInput.value.slice(1)); //EVAL
 			} else {
-				socket.emit('sendMsgToServer', chatInput.value);//EVERYONE
+				socket.emit('sendMsgToServer', chatDivFormInput.value);//EVERYONE
 			}
-			chatInput.value = '';
+			chatDivFormInput.value = '';
 		}
 	}
-	
-	
-	//SERVER, MAKE MY ATTACKS!
-	document.onkeyup = function(event){
-		if(!inChatInput){
+	document.onkeyup = function(event){ //KEYBOARD EVENTS
+		if(!inChatInput){ //Falls der Spieler gerade nichts im Chat eingibt, zählen die Tasten 1-4 als Attackversuche und Enter als signIn-Versuch
 			if(event.keyCode === 49 ) //1
 				socket.emit('atk1',{});
 			else if(event.keyCode === 50) //2
@@ -395,16 +208,189 @@
 				socket.emit('atk3',{});
 			else if(event.keyCode === 52) //4
 				socket.emit('atk4',{});
-			else if(event.keyCode === 13) //Enter
+			else if(event.keyCode === 13 && !loggedIn) //Enter
 				socket.emit('signIn', {username:signDivUsername.value, password:signDivPassword.value});
 		}
 	}
+	fightDivAttacksButton1.onclick = function(){
+		socket.emit('atk1', {});
+		//fightDivAttacks ausblenden
+		fightDivAttacks.style.visibility = 'hidden'; 
+	}
+	//GIVE UP
+	fightDivAttacksButton4.onclick = function(){
+		socket.emit('giveUp', {fightId:fightDivInfoFightId.innerHTML, enemyUsername:fightDivInfoEnemyUsername.innerHTML});
+	}
+	/********************************************* CLIENT-EVENTS END ************************************************/
+	/********************************************* SERVER-RESPONSE BEGIN ********************************************/
+	//SIGN-UP-RESPONSE
+	socket.on('signUpResponse', function(data){
+		if(data.success){
+			infoMessageDiv.innerHTML = 'Sign Up successful! :)';
+		} else {
+			infoMessageDiv.innerHTML = 'Sign Up unsuccessful! :(';
+		}
+	});
+	//SIGN-IN-RESPONSE
+	socket.on('signInResponse', function(data){
+		if(data.success){
+			loggedIn = true;
+			/*audio1.pause();
+			audio5.play();*/
+			/* signDiv ausblenden, chatDiv und opponentDiv einblenden */
+			signDiv.style.display = 'none';
+			chatDiv.style.display = 'inline-block';
+			opponentDiv.style.display = 'inline-block';
+			addToChat('Willkommen zu MA-TSE-MON! - Das Abenteuer beginnt!', infoColor);
+			infoMessageDiv.innerHTML = '';
+		} else {
+			infoMessageDiv.innerHTML = 'Sign In unsuccessful! ._.';
+		}
+	});
+	//ALREADY LOGGED-IN
+	socket.on('alreadyLoggedIn', function(){
+		infoMessageDiv.innerHTML = 'Du bist bereits woanders eingeloggt! Bitte logge dich dort zuerst aus. ^o^';
+	});
+	//GET MY USERNAME
+	socket.on('getMyUsername', function(data){ //data is JSON
+		headerDivMyUsername.innerHTML = 'Mighty '+data.username+' is back!';
+	});
 	
+	//ADD TO CHAT
+	socket.on('addToChat', function(data){
+		addToChat(data, normalColor);
+	});
+	//DEBUG (EVAL)
+	socket.on('evalAnswer', function(data){
+		console.log(data, infoColor);
+	});
+	//WHISPER FAILURE
+	socket.on('whisperFail', function(data){
+		if(data.stupid){
+			addToChat('Warum flüsterst du dir selber? O_O' warningColor);
+		} else {
+			addToChat(data.to+' ist nicht online oder existiert nicht. :(', warningColor);
+		}
+	});
+	//WHISPER FROM ME
+	socket.on('whisperFromMe', function(data){
+		addToChat(data.message, whisperColor);
+	});
+	//WHISPER FOR ME
+	socket.on('whisperForMe', function(data){
+		addToChat(data.message, whisperColor);
+	});
 	
-	var infoColor = '#fffcc4';
-	var msgColor = '';
-	var wspColor = '';
-	var warnColor = '';
+	//OPPONENT INIT - INITIALISIERT OPPONENT-LIST
+	socket.on('opponentInit', function(data){ //data is JSON
+		opponentDivList.innerHTML += '<div id="'+data.username+'" class="possibleOpponent">'+data.username+'</div><br/>';
+		document.getElementById(data.username).onclick = function(){ //diesem einen div ein onclick event hinzufügen
+			socket.emit('challenge', {opponentUsername:this.id});
+		}
+	});
+	//READY - WIRD ZUR OPPONENT-LIST HINZUGEFÜGT
+	socket.on('ready', function(data){ //data is JSON
+		opponentDivList.innerHTML += '<div id="'+data.username+'" class="possibleOpponent">'+data.username+'</div><br/>';
+		document.getElementById(data.username).onclick = function(){ //diesem einen div ein onclick event hinzufügen
+			socket.emit('challenge', {opponentUsername:this.id});
+		}
+	});
+	//BUSY - WIRD VON DER OPPONENT-LIST ENTFERNT
+	socket.on('busy', function(data){ //data is JSON
+		var elem = document.getElementById(data.username);
+		if(elem != undefined){
+			elem.parentNode.removeChild(elem); //hier wird ein error geschmissen wenn jemand disconnected, der nicht auf der opponent list sichtbar war - soweit bekannt, sollte vorerst kein problem darstellen, evtl try & catch?
+		}
+	});
+						
+	//GET CHALLENGED BY SOMEBODY
+	socket.on('challenged', function(data){
+		chooseDiv.style.display = 'inline-block';
+		chooseDivConfirm.innerHTML = data.challengerUsername + ' asked you for a challenge - Will you agree?';
+		chooseDiv.name = data.challengerUsername; //Der Name vom Herausforderer muss irgendwie gespeichert werden - Dieser Weg ist aber durchaus merkwürdig :D
+console.log('chooseDiv.name is now '+chooseDiv.name); //Nur zum debuggen
+	});
+	//CHALLENGE-ANSWER - YOUR OPPONENT CHOSE YES OR NO
+	socket.on('challengeAnswer', function(data){
+		if(data.success){
+console.log(data.opponentUsername+' agreed your challenge!'); //Nur zum debuggen
+			//fightDiv einblenden, opponentDiv ausblenden
+			fightDiv.style.display = 'inline-block';
+			opponentDiv.style.display = 'none';
+			infoMessageDiv.innerHTML = '';
+		} else {
+			infoMessageDiv.innerHTML = data.opponentUsername+' declined your challenge!';
+		}
+	});
+	
+	//FIGHT INIT - ALLE DATEN WERDEN ERST EINMAL INITIALISIERT
+	socket.on('beginFight', function(data){
+		addToChat('Fight starts!', infoColor);
+		fightDivInfoMyUsername.innerHTML = data.myUsername;
+		fightDivInfoEnemyUsername.innerHTML = data.enemyUsername;
+		fightDivInfoMyGuild.innerHTML = data.myGuild;
+		fightDivInfoEnemyGuild.innerHTML = data.enemyGuild;
+		fightDivInfoMyHp.innerHTML = 100;
+		fightDivInfoEnemyHp.innerHTML = 100;
+		fightDivInfoFightId.innerHTML =  data.fightId;
+		fightDivInfoTurn.innerHTML = data.turn;
+		//oponentDiv ausblenden und fightDiv einblenden und fightDivAttacks ausblenden, falls nicht am Zug
+		opponentDiv.style.display = 'none';
+		fightDiv.style.display = 'inline-block';
+		if(data.turn != data.myUsername){
+			fightDivAttacks.style.visibility = 'hidden';
+		}
+	});
+	//END FIGHT
+	socket.on('endFight', function(data){
+		addToChat('Fight is over', infoColor);
+		addToChat('... 3 ...', infoColor);
+console.log('Es wurde aufgegeben - Kampf wurde aus Liste gelöscht (fightId:'+data.fightId+')');
+		setTimeout(function(){
+			addToChat('... 2 ...', infoColor);
+			setTimeout(function(){
+				addToChat('... 1 ...', infoColor);
+				setTimeout(function(){
+					//opponentDiv wird eingeblendet und fightDiv wird ausgeblendet
+					opponentDiv.style.display = 'inline-block';
+					fightDiv.style.display = 'none';
+				},1000);
+			},1000);
+		}, 1000);
+	});
+	
+	//ME TOOK DAMAGE
+	socket.on('takeDmg', function(data){
+console.log('Das neue Leben von mir beträgt '+data.newHp);
+		fightDivInfoMyHp.innerHTML = data.newHp; //IMPORTANT to show that you lost hp
+		fightDivAttacks.style.visibility = 'visible'; //Hier wird nicht die Technik von display:none/inline-block verwendet damit sich nicht alles verschiebt während des Zugwechsels!
+	});
+	//ENEMY TOOK DAMAGE
+	socket.on('yourEnemyTookDmg', function(data){
+console.log('Das neue Leben des Gegners beträgt '+data.newHp);
+		fightDivInfoEnemyHp.innerHTML = data.newHp;
+	});
+	//ATTACK HANDLING - DAMAGE
+	socket.on('atkResponse', function(data){
+		if(data.success){
+			socket.emit('dealDamage', {enemy:enemyUsername,fightId:id});
+			myTurn = false;
+			myTurn.innerHTML = myTurn;
+			infoMessageDiv.innerHTML = '';
+		} else {
+			infoMessageDiv.innerHTML = 'Server denied your attack! o~o';
+		}
+	});
+	
+//GET STATS (CONNECTED CLIENTS) - Nur zum debuggen
+socket.on('stats', function(data){
+console.log('Connected clients:' + data.numClients);
+});
+	
+	/********************************************** SERVER-RESPONSE END **********************************************/
+	/* ICH HABE ALLES AN CODE, DAS NUR ZUM DEBUGGEN VORHANDEN IST (DARUNTER GANZE EVENTS), 
+	GANZ LINKSBUENDIG GESCHRIEBEN, DAMIT MAN ES SPÄTER SCHNELL SIEHT UND WEGMACHEN KANN */
+	
 </script>
 </body>
 </html>

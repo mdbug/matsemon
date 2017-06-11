@@ -48,7 +48,9 @@ var addUser = function(data,cb){
 var DEBUG = true;
 var io = require('socket.io')(serv,{});
 
+
 var FIGHT_LIST = [];
+var FIGHT_REQUEST_LIST = []; //Hier sollen alle Spieler rein, die herausgefordert wurden oder jemanden herausfordern - Niemand hieraus soll eine Anfrage stellen dürfen oder angefragt werden! Dies würde zu Problemen führen
 var fightId = 0;
 var PLAYER_LIST = [];
 var numClients = 0;
@@ -61,10 +63,11 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 	socket.on('signIn', function(data){
 		isValidPassword(data,function(res){
 			if(res){ //wird eingeloggt
-				numClients++;
+				
 				if(PLAYER_LIST[data.username] != undefined){ //already logged in!
 					socket.emit('alreadyLoggedIn', {});
 				} else {
+					numClients++;
 					db.player.find({username:data.username},function(err,res){
 						//res.length == 1
 						var username = res[0].username; //take username of logged in player from db
@@ -75,7 +78,7 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 								console.log('im in opponentinit serverside');						
 							}
 						}
-						socket.emit('getMyUsername', username);
+						socket.emit('getMyUsername', {username:username});
 						socket.id = username; //set id of socket from logged in player to his username
 						res[0].socket = socket; //
 						PLAYER_LIST[username] = res[0];
@@ -93,13 +96,13 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 	
 	//GIVEUP
 	socket.on('giveUp', function(data){
-		PLAYER_LIST[data.myname].infight = false;
-		PLAYER_LIST[data.enemyname].infight = false;
-		PLAYER_LIST[data.myname].socket.emit('endFight', {fightId: data.fightId});
-		PLAYER_LIST[data.enemyname].socket.emit('endFight', {fightId: data.fightId});
+		PLAYER_LIST[socket.id].infight = false;
+		PLAYER_LIST[data.enemyUsername].infight = false;
+		socket.emit('endFight', {fightId: data.fightId});
+		PLAYER_LIST[data.enemyUsername].socket.emit('endFight', {fightId: data.fightId});
 		setTimeout(function(){
-			ready({username:data.myname});
-			ready({username:data.enemyname});
+			ready({username:socket.id});
+			ready({username:data.enemyUsername});
 			delete FIGHT_LIST[data.fightId];	
 		},3000);
 	});
@@ -125,26 +128,26 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 			busy({username:socket.id});
 			
 			PLAYER_LIST[data.challengerUsername].socket.emit('challengeAnswer', {opponentUsername:socket.id,success:true});
-			//herausforderer
+			//herausforderer bekommt FIGHT INIT
 			PLAYER_LIST[data.challengerUsername].socket.emit('beginFight', { //init data for challenger
-				opponentUsername:socket.id, 
-				challengerUsername:data.challengerUsername,
-				id:fightId,
-				mylvl: PLAYER_LIST[data.challengerUsername].lvl,
-				otherlvl: PLAYER_LIST[socket.id].lvl,
-				myguild: PLAYER_LIST[data.challengerUsername].guild,
-				otherguild: PLAYER_LIST[socket.id].guild,
-				turn: socket.id,
+				myUsername : data.challengerUsername, 
+				enemyUsername : socket.id,
+				myGuild : PLAYER_LIST[data.challengerUsername].guild,
+				enemyGuild : PLAYER_LIST[socket.id].guild,
+				myLvl : PLAYER_LIST[data.challengerUsername].lvl,
+				enemyLvl : PLAYER_LIST[socket.id].lvl,
+				fightId : fightId,
+				turn: socket.id, //Herausgeforderter fängt an!
 			});
-			//herausgeforderter
+			//herausgeforderter bekommt FIGHT INIT
 			socket.emit('beginFight', { //init data for opponent
-				opponentUsername:socket.id,
-				challengerUsername:data.challengerUsername,
-				id:fightId,
-				mylvl: PLAYER_LIST[socket.id].lvl,
-				otherlvl: PLAYER_LIST[data.challengerUsername].lvl,
-				myguild: PLAYER_LIST[socket.id].guild,
-				otherguild: PLAYER_LIST[data.challengerUsername].guild,
+				myUsername : socket.id, 
+				enemyUsername : data.challengerUsername,
+				myGuild : PLAYER_LIST[socket.id].guild,
+				enemyGuild : PLAYER_LIST[data.challengerUsername].guild,
+				myLvl : PLAYER_LIST[socket.id].lvl,
+				enemyLvl : PLAYER_LIST[data.challengerUsername].lvl,
+				fightId : fightId,
 				turn: socket.id,
 			});
 			fightId++;
@@ -199,8 +202,12 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 	//whisp
 	socket.on('sendWspToServer', function(data){
 		if(PLAYER_LIST[data.to] != undefined){
-			socket.emit('seeWhisper', {message:"flüstern an "+data.to+": "+data.message});
-			PLAYER_LIST[data.to].socket.emit('seeWhisper2', {message:socket.id+": "+data.message});
+			if(data.to == socket.id){
+				socket.emit('whisperFail', {stupid:true});
+			} else {
+				socket.emit('whisperFromMe', {message:"flüstern an "+data.to+": "+data.message});
+				PLAYER_LIST[data.to].socket.emit('whisperForMe', {message:socket.id+": "+data.message});
+			}
 		} else {
 			socket.emit('whisperFail', {to:data.to});
 		}
@@ -209,29 +216,30 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 	socket.on('atk1', function(){
 		if(PLAYER_LIST[socket.id] != undefined){ //spieler muss on sein zum angreifen
 			atk1Dmg = PLAYER_LIST[socket.id].atk1Dmg;
+			console.log('atk1Dmg ist so hoch: '+atk1Dmg);
 			fightId = PLAYER_LIST[socket.id].infight;
 			//ist er auch wirklich am zug???
 			if(hisTurn(socket.id,fightId)){ //name und fightId
+				var newHp;
+				var nameOfTheOther = '';
+				console.log(fightId);
+				console.log(FIGHT_LIST);
+				if(FIGHT_LIST[fightId].opponentUsername === socket.id){ //opponent attacks
+					nameOfTheOther = FIGHT_LIST[fightId].challengerUsername;
+					FIGHT_LIST[fightId].challengerHp -= atk1Dmg;
+					newHp = FIGHT_LIST[fightId].challengerHp;
+				} else { //challenger attacks
+					nameOfTheOther = FIGHT_LIST[fightId].opponentUsername;
+					FIGHT_LIST[fightId].opponentHp -= atk1Dmg;
+					newHp = FIGHT_LIST[fightId].opponentHp;
+				}
+				FIGHT_LIST[fightId].turn = nameOfTheOther;
+
+				console.log('die neuen HP für '+nameOfTheOther+' beträgt '+newHp);
 				
-			}
-			var newHp;
-			var nameOfTheOther = '';
-			console.log(fightId);
-			console.log(FIGHT_LIST);
-			if(FIGHT_LIST[fightId].opponentUsername === socket.id){ //opponent attacks
-				nameOfTheOther = FIGHT_LIST[fightId].challengerUsername;
-				FIGHT_LIST[fightId].challengerHp -= atk1Dmg;
-				newHp = FIGHT_LIST[fightId].challengerHp;
-			} else { //challenger attacks
-				nameOfTheOther = FIGHT_LIST[fightId].opponentUsername;
-				FIGHT_LIST[fightId].opponentHp -= atk1Dmg;
-				newHp = FIGHT_LIST[fightId].opponentHp;
-			}
-			FIGHT_LIST[fightId].turn = nameOfTheOther;
-			console.log(nameOfTheOther);
-			
-			PLAYER_LIST[nameOfTheOther].socket.emit('takeDmg', {newHp:newHp,turn:FIGHT_LIST[fightId].turn}); //attacked person will recognize
-			socket.emit('yourEnemyTookDmg', {newHp:newHp,turn:FIGHT_LIST[fightId].turn}); //attacking person will recognize
+				PLAYER_LIST[nameOfTheOther].socket.emit('takeDmg', {newHp:newHp,turn:FIGHT_LIST[fightId].turn}); //attacked person will recognize
+				socket.emit('yourEnemyTookDmg', {newHp:newHp,turn:FIGHT_LIST[fightId].turn}); //attacking person will recognize
+				}
 		}
 		
 	});
