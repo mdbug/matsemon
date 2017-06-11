@@ -45,7 +45,7 @@
 		</div>
 		<!-- OPPONENT -->
 		<div id="opponentDiv" style="border:1px solid blue;display:none;">
-		<h3>Click on these players to send them a challenge!</h3>
+		<h3>Click on these players to send them a challenge! (aktueller bug: man kann nur den letzten spieler aus der liste attackieren)</h3>
 			<div id="opponentDivList" style="border:1px solid blue">
 				<!-- players you can attack in here -->
 			</div>
@@ -283,16 +283,17 @@
 	
 	//OPPONENT INIT - INITIALISIERT OPPONENT-LIST
 	socket.on('opponentInit', function(data){ //data is JSON
-		opponentDivList.innerHTML += '<div id="'+data.username+'" class="possibleOpponent">'+data.username+'</div><br/>';
+		opponentDivList.innerHTML += '<div id="'+data.username+'" class="possibleOpponent" style="border:1px solid black">username:'+data.username+'</div><br/>';
+console.log('possible opponent ist '+data.username+', challenge wird beim klick hierauf emittet mit opponentUsername:'+data.username);
 		document.getElementById(data.username).onclick = function(){ //diesem einen div ein onclick event hinzufügen
-			socket.emit('challenge', {opponentUsername:this.id});
+			socket.emit('challenge', {opponentUsername:data.username});
 		}
 	});
 	//READY - WIRD ZUR OPPONENT-LIST HINZUGEFÜGT
 	socket.on('ready', function(data){ //data is JSON
-		opponentDivList.innerHTML += '<div id="'+data.username+'" class="possibleOpponent">'+data.username+'</div><br/>';
+		opponentDivList.innerHTML += '<div id="'+data.username+'" class="possibleOpponent" style="border:1px dashed black">username:'+data.username+'</div><br/>';
 		document.getElementById(data.username).onclick = function(){ //diesem einen div ein onclick event hinzufügen
-			socket.emit('challenge', {opponentUsername:this.id});
+			socket.emit('challenge', {opponentUsername:data.username});
 		}
 	});
 	//BUSY - WIRD VON DER OPPONENT-LIST ENTFERNT
