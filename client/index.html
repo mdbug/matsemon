@@ -267,7 +267,7 @@
 	//WHISPER FAILURE
 	socket.on('whisperFail', function(data){
 		if(data.stupid){
-			addToChat('Warum flüsterst du dir selber? O_O' warningColor);
+			addToChat('Warum flüsterst du dir selbst? O_O', warningColor);
 		} else {
 			addToChat(data.to+' ist nicht online oder existiert nicht. :(', warningColor);
 		}
