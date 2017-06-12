@@ -4,6 +4,8 @@
 <head>
 	<meta charset="UTF-8">
 	<rel src="style.css" type="text/css">
+	<link rel="icon" href="favicon.ico" type="image/x-icon">
+	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
 	<title>MA-TSE-MON! - the beginning</title>
 </head>
 <body>
@@ -149,6 +151,15 @@
 		chatDivText.innerHTML += '<div style="color:'+color+'">' + data + '</div>';
 		chatDivText.scrollTop = chatDivText.scrollHeight;
 	}
+	function addOnclickEvents(username){
+		var possibleOpponents = document.getElementsByClassName('possibleOpponent');
+		for(var key in possibleOpponents){
+			possibleOpponents[key].onclick = function(){
+				var opponentUsername = this.id;
+				socket.emit('challenge', {opponentUsername:opponentUsername});
+			}
+		}
+	}
 	/******************************************** FUNCTIONS END ***************************************************/
 	/******************************************** CLIENT-EVENTS BEGIN ***********************************************/
 	signDivSignUp.onclick = function(){
@@ -200,16 +211,21 @@
 	}
 	document.onkeyup = function(event){ //KEYBOARD EVENTS
 		if(!inChatInput){ //Falls der Spieler gerade nichts im Chat eingibt, zählen die Tasten 1-4 als Attackversuche und Enter als signIn-Versuch
-			if(event.keyCode === 49 ) //1
+			if(event.keyCode === 49 ){ //1
 				socket.emit('atk1',{});
-			else if(event.keyCode === 50) //2
+				fightDivAttacks.style.visibility = 'hidden'; 
+			} else if(event.keyCode === 50){ //2
 				socket.emit('atk2',{});
-			else if(event.keyCode === 51) //3
+				fightDivAttacks.style.visibility = 'hidden'; 
+			} else if(event.keyCode === 51){ //3
 				socket.emit('atk3',{});
-			else if(event.keyCode === 52) //4
+				fightDivAttacks.style.visibility = 'hidden'; 
+			} else if(event.keyCode === 52){ //4
 				socket.emit('atk4',{});
-			else if(event.keyCode === 13 && !loggedIn) //Enter
+				fightDivAttacks.style.visibility = 'hidden'; 
+			} else if(event.keyCode === 13 && !loggedIn){ //Enter
 				socket.emit('signIn', {username:signDivUsername.value, password:signDivPassword.value});
+			}
 		}
 	}
 	fightDivAttacksButton1.onclick = function(){
@@ -253,16 +269,26 @@
 	});
 	//GET MY USERNAME
 	socket.on('getMyUsername', function(data){ //data is JSON
-		headerDivMyUsername.innerHTML = 'Mighty '+data.username+' is back!';
+		headerDivMyUsername.innerHTML = 'Mighty '+data.username+' is back! (lvl '+data.lvl+')';
 	});
 	
 	//ADD TO CHAT
 	socket.on('addToChat', function(data){
-		addToChat(data, normalColor);
+		if(data.color === 'info'){
+			addToChat(data.message, infoColor);
+		} else if(data.color === 'guild'){
+			addToChat(data.message, guildColor);
+		} else if(data.color === 'warning'){
+			addToChat(data.message, warningColor);
+		} else if(data.color === 'error'){
+			addToChat(data.message, errorColor);
+		} else {
+			addToChat(data.message, normalColor);
+		}
 	});
 	//DEBUG (EVAL)
 	socket.on('evalAnswer', function(data){
-		console.log(data, infoColor);
+		console.log(data);
 	});
 	//WHISPER FAILURE
 	socket.on('whisperFail', function(data){
@@ -284,18 +310,14 @@
 	//OPPONENT INIT - INITIALISIERT OPPONENT-LIST
 	socket.on('opponentInit', function(data){ //data is JSON
 		opponentDivList.innerHTML += '<div id="'+data.username+'" class="possibleOpponent" style="border:1px solid black">username:'+data.username+'</div><br/>';
-console.log('possible opponent ist '+data.username+', challenge wird beim klick hierauf emittet mit opponentUsername:'+data.username);
-		document.getElementById(data.username).onclick = function(){ //diesem einen div ein onclick event hinzufügen
-			socket.emit('challenge', {opponentUsername:data.username});
-		}
+		addOnclickEvents(data.username); //onclick event hinzufuegen
 	});
 	//READY - WIRD ZUR OPPONENT-LIST HINZUGEFÜGT
 	socket.on('ready', function(data){ //data is JSON
 		opponentDivList.innerHTML += '<div id="'+data.username+'" class="possibleOpponent" style="border:1px dashed black">username:'+data.username+'</div><br/>';
-		document.getElementById(data.username).onclick = function(){ //diesem einen div ein onclick event hinzufügen
-			socket.emit('challenge', {opponentUsername:data.username});
-		}
+		addOnclickEvents(data.username); //onclick event hinzufuegen
 	});
+
 	//BUSY - WIRD VON DER OPPONENT-LIST ENTFERNT
 	socket.on('busy', function(data){ //data is JSON
 		var elem = document.getElementById(data.username);
@@ -331,6 +353,9 @@ console.log(data.opponentUsername+' agreed your challenge!'); //Nur zum debuggen
 		fightDivInfoEnemyUsername.innerHTML = data.enemyUsername;
 		fightDivInfoMyGuild.innerHTML = data.myGuild;
 		fightDivInfoEnemyGuild.innerHTML = data.enemyGuild;
+		fightDivInfoMyLvl.innerHTML = data.myLvl;
+		fightDivInfoEnemyLvl.innerHTML = data.enemyLvl;
+console.log('das ist das fight init - enemy lvl '+data.enemeyLvl);
 		fightDivInfoMyHp.innerHTML = 100;
 		fightDivInfoEnemyHp.innerHTML = 100;
 		fightDivInfoFightId.innerHTML =  data.fightId;
@@ -340,6 +365,8 @@ console.log(data.opponentUsername+' agreed your challenge!'); //Nur zum debuggen
 		fightDiv.style.display = 'inline-block';
 		if(data.turn != data.myUsername){
 			fightDivAttacks.style.visibility = 'hidden';
+		} else {
+			fightDivAttacks.style.visibility = 'visible';
 		}
 	});
 	//END FIGHT
