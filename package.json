@@ -8,4 +8,5 @@
   },
   "author": "matse",
   "license": ""
+  "scripts": {"start": "mongod --dbpath=/C:\Program Files\MongoDB\Server\3.4\bin --port 27017 --fork"}
 }
