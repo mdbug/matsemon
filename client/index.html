@@ -31,7 +31,7 @@
 		font-family: matsemonHeaderFont;
 	}
 	html,body{
-		background-image: url('/client/img/spring.png');
+		background-image: url('/client/img/blackwhite.jpeg');
 		background-size: cover;
 		background-position: center top;
 		background-attachment: fixed;
@@ -62,28 +62,29 @@
 		border:0px;
 		background-color:#494949;
 	}
+	.btn-default{
+		color:white;
+		background-color:#333;
+		border:1px solid black;
+	}
 	</style>
 </head>
 <body>
 <div class="row">
 	<div id="containerDiv" class="container col-xs-12 col-md-8 col-md-offset-2 "><!-- HTML-STRUKTUR-->
-		
 		<div id="headerDiv" style="" class="col-xs-12 ">
 			<div class="row">
 				<h1 class="col-xs-8 text-center" style="text-align:center;">MA-TSE-MON!</h1>
 				<div class="dropdown col-xs-4">
-				<button style="background-color:rgba(0,0,0,0);border:0px;" class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					Menu
-					<!--<span class="caret"></span>-->
-				  </button>
-				  <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
-					<li><a href="#">Skills</a></li>
-					<li><a href="#">Best list</a></li>
-					<li role="separator" class="divider"></li>
-					<li><a href="#">Impressum</a></li>
-					<li><a href="#">Project</a></li>
-					<li><a href="#">Facebook</a></li>
-				  </ul>
+					<button style="background-color:rgba(0,0,0,0);border:0px;" class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						Menu
+					</button>
+					<ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+						<li><a href="#">About MA-TSE-MON!</a></li>
+						<li role="separator" class="divider"></li>
+						<li><a href="#">Impressum</a></li>
+						<li><a href="#">Facebook</a></li>
+					</ul>
 				</div>
 			</div>
 		</div>
@@ -111,26 +112,98 @@
 				<input class="form-control" id="signDivPassword" name="signDivPassword" type="password"></input>
 			</div>
 			<div class="form-group text-center">
-				<button id="signDivSignIn" type="button" class="btn btn-primary btn-sm">Sign In</button>
-				<button id="signDivSignUp" type="button" class="btn btn-primary btn-sm">Sign Up</button>
+				<button id="signDivSignIn" type="button" class="btn btn-default btn-sm">Sign In</button>
+				<button id="signDivSignUp" type="button" class="btn btn-default btn-sm">Sign Up</button>
 			</div>
+		</div>
+		<!-- CHOOSE TYPE -->
+		<script>
+var ATTACKS = {
+	//mystic attacks
+	'Death Grip':{type:'mystic',strong:'science',dmg:19,hit:0.6,crit:0,selfdmg:0}, //lvl 1
+	'Doom':{type:'mystic',strong:'',dmg:15,hit:1,crit:0.3,selfdmg:2}, //lvl 1
+	'Soul Harvest':{type:'mystic',strong:'holy',dmg:13,hit:0.8,crit:0.3,selfdmg:-4}, //lvl 5
+	'Ghoul Explosion':{type:'mystic',strong:'science',dmg:20,hit:0.8,crit:0.3,selfdmg:8}, //lvl 10
+	'Summon Satan':{type:'mystic',strong:'science',dmg:66,hit:0.6,crit:0.6,selfdmg:6}, //lvl 20
+	'Darkness':{type:'mystic',strong:'science',dmg:99,hit:0.4,crit:0,selfdmg:25}, //lvl 15
+	
+	//holy attacks
+	'Holy Pain':{type:'holy',strong:'mystic',dmg:16,hit:0.8,crit:0.3,selfdmg:-2}, //lvl 1
+	'Jesus Punch':{type:'holy',strong:'',dmg:9,hit:1,crit:0.8,selfdmg:1}, //lvl 1
+	'Exorcism':{type:'holy',strong:'mystic',dmg:15,hit:0.9,crit:0,selfdmg:1}, //lvl 10
+	'Heal':{type:'holy',strong:'science',dmg:0,hit:1,crit:0,selfdmg:-15}, //lvl 5
+	'Rape':{type:'holy',strong:'mystic',dmg:20,hit:0.4,crit:0.2,selfdmg:-10}, //lvl 20
+	'Throw Bible':{type:'holy',strong:'mystic',dmg:30,hit:0.9,crit:0.2,selfdmg:-30}, //lvl 15
+	
+	//science attacks
+	'Zero-Division':{type:'science',strong:'',dmg:100,hit:0.1,crit:0,selfdmg:50}, //lvl 1
+	'Analysis 2':{type:'science',strong:'holy',dmg:13,hit:0.8,crit:0.5,selfdmg:0}, //lvl 10
+	'Epsilon-Delta-Crit':{type:'science',strong:'holy',dmg:15,hit:0.6,crit:1,selfdmg:5}, //lvl 15
+	'Gauß':{type:'science',strong:'mystic',dmg:9,hit:0.9,crit:0.2,selfdmg:-9}, //lvl 1
+	'Sumzing sumzing':{type:'science',strong:'holy',dmg:17,hit:0.9,crit:0.7,selfdmg:0},//lvl 5
+	'Horners Method':{type:'science',strong:'mystic',dmg:26,hit:0.6,crit:0.7,selfdmg:5}, //lvl 20
+	
+	//GM-Attacks
+	'OnePunch':{type:'gm',strong:'holy',dmg:1337,hit:1,crit:1,selfdmg:-1337},
+	'GodMode':{type:'gm',strong:'',dmg:0,hit:1,crit:0,selfdmg:-200000000},
+	'Aimbot':{type:'gm',strong:'',dmg:1000,hit:1000,crit:1000,selfdmg:0},
+};
+		var choseType = false;
+		var choseAttacks = 0;
+		function choose(obj){
+			choseType = obj.id;
+			console.log(choseType);
+			document.getElementById('attackList').innerHTML = 
+			'<div id="atk1" class="possibleAttack" onclick="chooseAttack(this)">ATK1</div>'
+			+'<div id="atk2" class="possibleAttack" onclick="chooseAttack(this)">ATK2</div>'
+			+'<div id="atk3" class="possibleAttack" onclick="chooseAttack(this)">ATK3</div>'
+			+'<div id="atk4" class="possibleAttack" onclick="chooseAttack(this)">ATK4</div>';
+		}
+		function chooseAttack(obj){
+		console.log(obj.name);
+			if(obj.name != 'taken'){
+				obj.name = 'taken';
+				choseAttacks++;
+				console.log(choseAttacks);
+			} else {
+				obj.name = '';
+				choseAttacks--;
+				console.log(choseAttacks);
+			}
+			if(choseType && choseAttacks == 3){
+				document.getElementById('signMeUp').style.display = 'inline-block';
+			}
+		}
+		function signUp(){
+			socket.emit('signUp', {username:signDivUsername.value, password:signDivPassword.value, type:choseType, atk1:'Ghoul Explosion',atk2:'Jesus Punch',atk3:'Holy Pain'});
+		}
+		</script>
+		<div id="chooseTypeDiv" class="col-xs-12" style="display:none">
+			<div class="col-xs-4"><img id="mystic" width="20" height="20" style="background-color:green" onclick="choose(this)">mystic</div>
+			<div class="col-xs-4"><img id="holy" width="20" height="20" style="background-color:green" onclick="choose(this)">holy</div>
+			<div class="col-xs-4"><img id="science" width="20" height="20" style="background-color:green" onclick="choose(this)">science</div>
+			<div class="col-xs-12" id="attackList"></div>
+			<div class="col-xs-12" id="signMeUp" style="display:none"><button onclick="signUp()">Sign Up</button></div>
 		</div>
 		<!-- FIGHT -->
 		<div id="fightDiv" class="col-xs-12" style="display:none;float:left;">
-			<canvas id="fightDivAnimations" height="200px" width="500px" style="border:0px solid red">MONSTER FIGHT IN HERE</canvas>
+			<div id="eventMessage" class=" text-center" style="position:relative;top:50px;" height="200px" width="500px" style="border:1px solid red">
+				sth in here of events
+			</div>
+			<canvas id="fightDivAnimations" height="200px" width="500px" style="border:1px solid red">MONSTER FIGHT IN HERE</canvas>
 			<div class="row" id="">		
-				<div class="progress col-xs-6" style="background-color:rgba(0,0,0,0);">
-					<div style="background-color:red;color:black;border:1px solid black" id="fightDivMyHp" class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%"></div>
+				<div class="progress col-xs-6" style="background-color:rgba(0,0,0,0);border:0px;">
+					<div style="background-color:rgb(0,255,0);color:black;border:1px solid black" id="fightDivMyHp" class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%"></div>
 				</div>	
-				<div class="progress col-xs-6" style="background-color:rgba(0,0,0,0);">
-					<div style="background-color:red;color:black;border:1px solid black" id="fightDivEnemyHp" class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%"></div>
+				<div class="progress col-xs-6" style="background-color:rgba(0,0,0,0);border:0px;">
+					<div style="background-color:rgb(0,255,0);color:black;border:1px solid black" id="fightDivEnemyHp" class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%"></div>
 				</div>
 			</div>
 			<div class="text-center" id="fightDivAttacks" style="border:0px solid red">
-				<button id="fightDivAttacksButton1" type="button" class="btn btn-default btn-sm col-xs-3">Feuerodem</button>
-				<button id="fightDivAttacksButton2" type="button" class="btn btn-default btn-sm col-xs-3">Drachenatem</button>
-				<button id="fightDivAttacksButton3" type="button" class="btn btn-default btn-sm col-xs-3">Schattenfluch</button>
-				<button id="fightDivAttacksButton4" type="button" class="btn btn-default btn-sm col-xs-3">Aufgeben</button>
+				<button id="fightDivAttacksButton1" type="button" class="btn btn-default btn-sm col-xs-3">lol</button>
+				<button id="fightDivAttacksButton2" type="button" class="btn btn-default btn-sm col-xs-3">rofl</button>
+				<button id="fightDivAttacksButton3" type="button" class="btn btn-default btn-sm col-xs-3">trollolol</button>
+				<button id="fightDivAttacksButton4" type="button" class="btn btn-default btn-sm col-xs-3">Give Up</button>
 			</div>
 			<div id="fightDivInfo" style="float:left;border:1px dashed black;display:none">
 				<div>my name:<p id="fightDivInfoMyUsername"></p></div>
@@ -145,13 +218,14 @@
 				<div>turn:<p id="fightDivInfoTurn"></p></div>
 			</div>
 		</div>
-
 		<!-- BEST -->
-		<div id="bestDiv" class="col-xs-12" style="display:none;border:0px solid indianred">
+		<div id="bestDiv" class="col-xs-12 text-center" style="display:none;border:1px solid black;background-color:white">
 		</div>
 		<!-- OPPONENT -->
-		<div id="opponentDiv" class="col-xs-12" style="border:0px solid blue;display:none;">
-		<h3>Click on these players to send them a challenge!</h3>
+		<div id="opponentDiv"  class="col-xs-12" style="display:none;">
+			<div class="row">
+				<h3 style="background-color:rgba(255,255,255,0.9);font-size:1em;border-top:1px solid black;border-bottom:1px solid black;">Click on these players to send them a challenge!</h3>
+			</div>
 			<div id="opponentDivList" style="border:0px solid blue">
 				<!-- players you can attack in here -->
 			</div>
@@ -175,16 +249,16 @@
 			<form class="" id="chatDivForm" style="">
 				<input type="text" id="chatDivFormInput" class="col-xs-12" style=""></input>
 			</form>
-			<div style="border:1px solid black">
-				<div class="col-xs-12" id="expBar" style="padding:0;margin:0;background-color:orange;height:6px;width:1%;display:inline-block;"></div>
+			<div style="background-color:#222;width:100%;border:1px solid black;margin:0;padding:0;" class="col-xs-12">
+				<div class="col-xs-12" id="expBar" style="padding:0;margin:0;background-color:orange;height:6px;width:1%;display:inline-block;border:0px solid black;"></div>
 			</div>
-			<div class="" style="background-color:white;font-size:0.7em">
-				<div class="col-xs-1" id="chatDivInfoLvl"></div>
-				<div class="col-xs-1" id="chatDivInfoExp"></div>
-				<div class="col-xs-4" id="chatDivInfoGuild"></div>
+			<div class="col-xs-12" style="background-color:white;font-size:1em;border:1px solid black;">
+				<div style="color:orange;background:white" class="col-xs-2" id="chatDivInfoLvl"></div>
+				<div style="display:none" class="col-xs-0" id="chatDivInfoExp"></div>
+				<div style="display:none" class="col-xs-3" id="chatDivInfoGuild"></div>
 				<div style="display:none" class="col-xs-1" id="chatDivInfoGuildmaster"></div>
 				<div style="display:none" class="col-xs-1" id="chatDivInfoInfight"></div>
-				<div class="col-xs-4" id="chatDivInfoUsername"></div>
+				<div style="color:black;background:white" class="col-xs-10" id="chatDivInfoUsername"></div>
 			</div>
 		</div>
 	</div><!-- END OF #containerDiv -->
@@ -279,7 +353,9 @@
 	/******************************************** FUNCTIONS END ***************************************************/
 	/******************************************** CLIENT-EVENTS BEGIN ***********************************************/
 	signDivSignUp.onclick = function(){
-		socket.emit('signUp', {username:signDivUsername.value, password:signDivPassword.value});
+		document.getElementById('chooseTypeDiv').style.display = 'inline-block';
+		signDiv.style.display = 'none';
+		//socket.emit('signUp', {username:signDivUsername.value, password:signDivPassword.value});
 	}
 	signDivSignIn.onclick = function(){
 		socket.emit('signIn', {username:signDivUsername.value, password:signDivPassword.value});
@@ -427,6 +503,8 @@ console.log('message is now (/g):'+message);
 			infoMessageDiv.innerHTML = 'Sign Up successful! :)';
 		} else {
 			infoMessageDiv.innerHTML = 'Sign Up unsuccessful! :(';
+			document.getElementById('chooseTypeDiv').style.display = 'none';
+			signDiv.style.display = 'inline-block';
 		}
 	});
 	//SIGN-IN-RESPONSE
@@ -439,7 +517,7 @@ console.log('message is now (/g):'+message);
 			signDiv.style.display = 'none';
 			chatDiv.style.display = 'inline-block';
 			opponentDiv.style.display = 'inline-block';
-			addToChat('Willkommen zu MA-TSE-MON! - Das Abenteuer beginnt! Befehlsübersicht: <code>/help</code>', infoColor);
+			addToChat('Welcome to MA-TSE-MON! - Type <code>/help</code> to see all commands!', infoColor);
 			infoMessageDiv.innerHTML = '';
 		} else {
 			infoMessageDiv.innerHTML = 'Sign In unsuccessful! ._.';
@@ -470,18 +548,29 @@ console.log('message is now (/g):'+message);
 		//IDEE: für lvl n braucht man INSGESAMT n^2 exp 1:1,2:4,20:400,30:900,50:2500,100:10.000 !
 		if(data.exp){
 			playerlvl = 1;
-			expprogress = data.exp*25;
+			expprogress = data.exp*25; //first level needs 4exp
 			for(var i = 2; i <= 100; i++){
 				if(data.exp >= Math.pow(i,2)){
 					playerlvl = i;
-					expprogress = (data.exp - Math.pow(i,2))/Math.pow(i,2)*100;
+					expprogress = (data.exp - Math.pow(i,2))/(Math.pow(i+1,2) - Math.pow(i,2))*100;
 				}
 			}
-			document.getElementById('expBar').style.width = expprogress+'%';
-			if(parseInt(chatDivInfoLvl.innerHTML) < playerlvl){
-				addToChat('Level up! (You gain 1 skill point)', infoColor);
+			if(data.exp >= 10000){
+				expprogress = 100;
+				document.getElementById('expBar').style.backgroundColor = 'purple';
 			}
-			chatDivInfoLvl.innerHTML = 'lvl:'+playerlvl;
+			if(parseInt(chatDivInfoLvl.innerHTML) < playerlvl){ //LVL UP
+				addToChat('Level '+playerlvl+'! *Fireworks*', infoColor);
+				document.getElementById('expBar').style.width = '100%';
+				document.getElementById('expBar').style.backgroundColor = 'white';
+				setTimeout(function(){
+					document.getElementById('expBar').style.width = expprogress+'%';
+					document.getElementById('expBar').style.backgroundColor = 'orange';
+				},3000);
+			} else {
+				document.getElementById('expBar').style.width = expprogress+'%';
+			}
+			chatDivInfoLvl.innerHTML = playerlvl;
 		}
 	});
 	
@@ -538,7 +627,7 @@ console.log('message is now (/g):'+message);
 		try{
 			var sth = document.getElementById(data.username).style.color;
 		}catch(err){
-			opponentDivList.innerHTML += '<div id="'+data.username+'" class="possibleOpponent" style="border:1px dashed black;margin:0px;padding:0px">'+data.username+'</div><br/>';
+			opponentDivList.innerHTML += '<div id="'+data.username+'" class="possibleOpponent " style="border:1px dashed black;margin:0px;padding:0px">'+data.username+'</div><br/>';
 			addOnclickEvents(data.username); //onclick event hinzufuegen
 		}
 	});
@@ -547,7 +636,7 @@ console.log('message is now (/g):'+message);
 		try{
 			var sth = document.getElementById(data.username).style.color;
 		}catch(err){
-			opponentDivList.innerHTML += '<div id="'+data.username+'" class="possibleOpponent" style="border:1px dashed black;margin:0px;padding:0px">'+data.username+'</div><br/>';
+			opponentDivList.innerHTML += '<div id="'+data.username+'" class="possibleOpponent " style="border:1px dashed black;margin:0px;padding:0px">'+data.username+'</div><br/>';
 			addOnclickEvents(data.username); //onclick event hinzufuegen
 		}
 	});
@@ -584,9 +673,34 @@ console.log(data.opponentUsername+' agreed your challenge!'); //Nur zum debuggen
 	
 	//FIGHT INIT - ALLE DATEN WERDEN ERST EINMAL INITIALISIERT
 	socket.on('beginFight', function(data){
+		//TODO SHOW YOUR TYPE AND ENEMY TYPE
+		addToChat('mytype:'+data.type+'enemyType:'+data.enemyType);
+		
+		fightDivMyHp.style.backgroundColor = 'rgb(0,255,0)';
+		fightDivEnemyHp.style.backgroundColor = 'rgb(0,255,0)';
+		
+		var typeColor = {
+			'mystic':'#c896ff',
+			'holy':'#fdff96',
+			'science':'#96ccff',
+		};
+		
 		fightDivAttacksButton1.innerHTML = data.atk1;
+		console.log(data.atk1Strong);
+		if(data.atk1Strong != ''){
+			fightDivAttacksButton1.style.backgroundColor = typeColor[data.atk1Strong];
+			fightDivAttacksButton1.style.color = 'black';
+		}
 		fightDivAttacksButton2.innerHTML = data.atk2;
+		if(data.atk2Strong != ''){
+			fightDivAttacksButton2.style.backgroundColor = typeColor[data.atk2Strong];
+			fightDivAttacksButton2.style.color = 'black';
+		}
 		fightDivAttacksButton3.innerHTML = data.atk3;
+		if(data.atk3Strong != ''){
+			fightDivAttacksButton3.style.backgroundColor = typeColor[data.atk3Strong];
+			fightDivAttacksButton3.style.color = 'black';
+		}
 		
 		fightDivMyHp.innerHTML = data.myUsername;
 		fightDivEnemyHp.innerHTML = data.enemyUsername;
@@ -616,11 +730,13 @@ console.log('das ist das fight init - enemy lvl '+data.enemeyLvl);
 	});
 	//END FIGHT
 	socket.on('endFight', function(data){
-		addToChat('Fight is over', infoColor);
+		addToChat('Fight is over!', infoColor);
 
 		//opponentDiv wird eingeblendet und fightDiv wird ausgeblendet
-		opponentDiv.style.display = 'inline-block';
-		fightDiv.style.display = 'none';
+		setTimeout(function(){
+			opponentDiv.style.display = 'inline-block';
+			fightDiv.style.display = 'none';
+		},2000);
 	});
 	
 	//ME TOOK DAMAGE
@@ -628,15 +744,72 @@ console.log('das ist das fight init - enemy lvl '+data.enemeyLvl);
 		if(data.myturn){
 			fightDivAttacks.style.visibility = 'visible'; //Hier wird nicht die Technik von display:none/inline-block verwendet damit sich nicht alles verschiebt während des Zugwechsels!
 		}
-		fightDivMyHp.style.width = data.newHp+'%';
-		
+		if((data.newHp+'%') != fightDivMyHp.style.width){
+			if(data.newHp < 0){
+				data.newHp = 0;
+			}
+			fightDivMyHp.style.width = data.newHp+'%';
+			var red = (100-data.newHp)*5;
+			if(red > 255){
+				red = 255;
+			}
+			var green = 255;
+			if(data.newHp <= 50){
+				green = data.newHp*5;
+			}
+			if(green<0){
+				green=0;
+			}
+			var blue = 0;
+			setTimeout(function(){
+				fightDivMyHp.style.backgroundColor = "rgb("+Math.round(red)+","+Math.round(green)+","+Math.round(blue)+")";
+				fightDivMyHp.style.border = "1px solid black";
+				fightDivMyHp.style.color = "black";
+			}, 200);
+			fightDivMyHp.style.backgroundColor = "rgb(0,0,0)";
+			fightDivMyHp.style.border = "1px solid white";
+			fightDivMyHp.style.color = "white";
+		}
 	});
 	//ENEMY TOOK DAMAGE
 	socket.on('yourEnemyTookDmg', function(data){
 		if(data.myturn){
 			fightDivAttacks.style.visibility = 'visible'; //Hier wird nicht die Technik von display:none/inline-block verwendet damit sich nicht alles verschiebt während des Zugwechsels!
 		}
-		fightDivEnemyHp.style.width = data.newHp+'%';
+		if((data.newHp+'%') != fightDivEnemyHp.style.width){
+			if(data.newHp < 0){
+				data.newHp = 0;
+			}
+			fightDivEnemyHp.style.width = data.newHp+'%';
+			var red = (100-data.newHp)*5;
+			if(red > 255){
+				red = 255;
+			}
+			var green = 255;
+			if(data.newHp <= 50){
+				green = data.newHp*5;
+			}
+			if(green<0){
+				green=0;
+			}
+			var blue = 0;
+			setTimeout(function(){
+				fightDivEnemyHp.style.backgroundColor = "rgb("+Math.round(red)+","+Math.round(green)+","+Math.round(blue)+")";
+				fightDivEnemyHp.style.border = "1px solid black";
+				fightDivEnemyHp.style.color = "black";
+			}, 200);
+			fightDivEnemyHp.style.backgroundColor = "rgb(0,0,0)";
+			fightDivEnemyHp.style.border = "1px solid white";
+			fightDivEnemyHp.style.color = "white";
+		}
+	});
+	//EVENT-MESSAGES
+	socket.on('eventMessage', function(data){
+		document.getElementById('eventMessage').innerHTML = '<c style="font-size:2em;color:red">CRIT!</c>';
+		setInterval(function(){
+			//after 1 s
+			document.getElementById('eventMessage').innerHTML = '';
+		},1000);
 	});
 	//ATTACK HANDLING - DAMAGE
 	socket.on('atkResponse', function(data){
@@ -659,11 +832,7 @@ console.log('das ist das fight init - enemy lvl '+data.enemeyLvl);
 		}
 		bestDiv.innerHTML += 'Hide this view: <code>/best</code>';
 	});
-	
-//GET STATS (CONNECTED CLIENTS) - Nur zum debuggen
-socket.on('stats', function(data){
-console.log('Connected clients:' + data.numClients);
-});
+
 	
 	/********************************************** SERVER-RESPONSE END **********************************************/
 	/* ICH HABE ALLES AN CODE, DAS NUR ZUM DEBUGGEN VORHANDEN IST (DARUNTER GANZE EVENTS), 

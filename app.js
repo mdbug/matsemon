@@ -1,42 +1,66 @@
 var mongojs = require('mongojs');
 var db = mongojs('localhost:27017/matsemon', ['player','monster']); //port, db and alle the collections we wanna use
-
 var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
-
+var io = require('socket.io')(serv,{});
+var port = 8888;
 app.get('/', function(req, res) {
 	res.sendFile(__dirname + '/client/index.html');
 });
-
 app.use('/client', express.static(__dirname + '/client'));
-
-serv.listen(8888);
-console.log("Server started.");
-
-/***************** game code **************************/
+serv.listen(port);
+console.log("Server started on port "+port+".");
+var DEBUG = true; //should be on false when in live version
+var numClients = 0;
+var FIGHT_LIST = [];
+var FIGHT_REQUEST_LIST = []; //Hier sollen alle Spieler rein, die herausgefordert wurden oder jemanden herausfordern - Niemand hieraus soll eine Anfrage stellen dürfen oder angefragt werden! Dies würde zu Problemen führen
+var PLAYER_LIST = [];
+var ATTACKS = {
+	//mystic attacks
+	'Death Grip':{type:'mystic',strong:'science',dmg:19,hit:0.6,crit:0,selfdmg:0}, //lvl 1
+	'Doom':{type:'mystic',strong:'',dmg:15,hit:1,crit:0.3,selfdmg:2}, //lvl 1
+	'Soul Harvest':{type:'mystic',strong:'holy',dmg:13,hit:0.8,crit:0.3,selfdmg:-4}, //lvl 5
+	'Ghoul Explosion':{type:'mystic',strong:'science',dmg:20,hit:0.8,crit:0.3,selfdmg:8}, //lvl 10
+	'Summon Satan':{type:'mystic',strong:'science',dmg:66,hit:0.6,crit:0.6,selfdmg:6}, //lvl 20
+	'Darkness':{type:'mystic',strong:'science',dmg:99,hit:0.4,crit:0,selfdmg:25}, //lvl 15
+	
+	//holy attacks
+	'Holy Pain':{type:'holy',strong:'mystic',dmg:16,hit:0.8,crit:0.3,selfdmg:-2}, //lvl 1
+	'Jesus Punch':{type:'holy',strong:'',dmg:9,hit:1,crit:0.8,selfdmg:1}, //lvl 1
+	'Exorcism':{type:'holy',strong:'mystic',dmg:15,hit:0.9,crit:0,selfdmg:1}, //lvl 10
+	'Heal':{type:'holy',strong:'science',dmg:0,hit:1,crit:0,selfdmg:-15}, //lvl 5
+	'Rape':{type:'holy',strong:'mystic',dmg:20,hit:0.4,crit:0.2,selfdmg:-10}, //lvl 20
+	'Throw Bible':{type:'holy',strong:'mystic',dmg:30,hit:0.9,crit:0.2,selfdmg:-30}, //lvl 15
+	
+	//science attacks
+	'Zero-Division':{type:'science',strong:'',dmg:100,hit:0.1,crit:0,selfdmg:50}, //lvl 1
+	'Analysis 2':{type:'science',strong:'holy',dmg:13,hit:0.8,crit:0.5,selfdmg:0}, //lvl 10
+	'Epsilon-Delta-Crit':{type:'science',strong:'holy',dmg:15,hit:0.6,crit:1,selfdmg:5}, //lvl 15
+	'Gauß':{type:'science',strong:'mystic',dmg:9,hit:0.9,crit:0.2,selfdmg:-9}, //lvl 1
+	'Sumzing sumzing':{type:'science',strong:'holy',dmg:17,hit:0.9,crit:0.7,selfdmg:0},//lvl 5
+	'Horners Method':{type:'science',strong:'mystic',dmg:26,hit:0.6,crit:0.7,selfdmg:5}, //lvl 20
+	
+	//GM-Attacks
+	'OnePunch':{type:'',strong:'holy',dmg:1337,hit:1,crit:1,selfdmg:-1337},
+	'GodMode':{type:'',strong:'',dmg:0,hit:1,crit:0,selfdmg:-200000000},
+	'Aimbot':{type:'',strong:'',dmg:1000,hit:1000,crit:1000,selfdmg:0},
+};
+/***************** game code *********************************************************/
+/********** add, get, update User from db *********************************************/
 var addUser = function(data,cb){
 	db.player.insert({
 		username:data.username,
 		password:data.password,
 		lvl:1,
-		exp:1,
+		exp:0,
 		guild:undefined,
 		guildmaster:false,
-		infight: false,
-		
-		type:'science',
-		atk1:'Zero-Division',
-		atk2:'Exorzism',
-		atk3:'Analysis 2',
-		
-		skill1:0,
-		skill1def:0,
-		skill2:0,
-		skill2def:0,
-		skill3:0,
-		skill3def:0,
-		spendskillpoints:0,
+		infight:false,
+		type:data.type,
+		atk1:data.atk1,
+		atk2:data.atk2,
+		atk3:data.atk3,
 	},
 	function(err){ //no need of res cause there is no return from the database!
 		cb();
@@ -44,10 +68,9 @@ var addUser = function(data,cb){
 }
 var getUser = function(data,cb){
 	db.player.find({username:data.username},function(err,res){
-		var player = res;
-		if(player.lvl == undefined || player.lvl <= 0){
-			player.lvl = 1;
-		}
+		var player = res;console.log(res);
+		return player;
+	
 	});
 }
 var updateUser = function(data,cb){
@@ -62,43 +85,14 @@ var updateUser = function(data,cb){
 		
 	}
 }
-
-var DEBUG = true;
-var io = require('socket.io')(serv,{});
-
-var ATTACKS = {
-	'Death Grip':{type:'mystic',strong:'',dmg:19,hit:0.6,crit:0,selfdmg:0},
-	'Doom':{type:'mystic',strong:'science',dmg:15,hit:1,crit:0.3,selfdmg:2},
-	'Soul Harvest':{type:'mystic',strong:'science',dmg:13,hit:0.8,crit:0.3,selfdmg:-4},
-	'Ghoul Explosion':{type:'mystic',strong:'religion',dmg:20,hit:0.8,crit:0.3,selfdmg:8},
-	
-	'Holy Pain':{type:'religion',strong:'mystic',dmg:16,hit:0.8,crit:0.3,selfdmg:-2},
-	'Jesus Punch':{type:'religion',strong:'',dmg:9,hit:1,crit:0.8,selfdmg:1},
-	'Exorcism':{type:'religion',strong:'mystic',dmg:15,hit:0.9,crit:0,selfdmg:1},
-	'Heal':{type:'religion',strong:'science',dmg:0,hit:1,crit:0,selfdmg:-20},
-	'Rape':{type:'religion',strong:'mystic',dmg:20,hit:0.7,crit:0.2,selfdmg:-10},
-	
-	'Zero-Division':{type:'science',strong:'',dmg:100,hit:0.1,crit:0,selfdmg:50},
-	'Analysis 2':{type:'science',strong:'religion',dmg:13,hit:0.8,crit:0.5,selfdmg:0},
-	'Epsilon-Delta-Crit':{type:'science',strong:'religion',dmg:15,hit:0.6,crit:1,selfdmg:5},
-	'Gauß':{type:'science',strong:'mystic',dmg:9,hit:0.9,crit:0.2,selfdmg:1},
-
-};
-
-var FIGHT_LIST = [];
-var FIGHT_REQUEST_LIST = []; //Hier sollen alle Spieler rein, die herausgefordert wurden oder jemanden herausfordern - Niemand hieraus soll eine Anfrage stellen dürfen oder angefragt werden! Dies würde zu Problemen führen
-var PLAYER_LIST = [];
-var numClients = 0;
+/**************************** SOCKETS ON CONNECTION *************************************/
 io.sockets.on('connection', function(socket){ //a player connects and creates a socket to interact with
-	
-	
-	io.emit('stats',{numClients : numClients});
+	//DEBUGGING: CONNECTED CLIENTS
 	console.log('Connected clients:', numClients);
 	//SIGNIN
 	socket.on('signIn', function(data){
 		isValidPassword(data,function(res){
 			if(res){ //wird eingeloggt
-				
 				if(PLAYER_LIST[data.username] != undefined){ //already logged in!
 					socket.emit('alreadyLoggedIn', {});
 				} else {
@@ -108,7 +102,6 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 						var username = res[0].username; //take username of logged in player from db
 						ready({username:username}); //shows up in opponent list of the otherguild
 						opponentInit(socket);
-						
 						socket.id = username; //set id of socket from logged in player to his username
 						res[0].socket = socket; //
 						PLAYER_LIST[username] = res[0];
@@ -116,22 +109,17 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 						socket.emit('getMyData', {username:username,lvl:res[0].lvl,guild:res[0].guild,guildmaster:res[0].guildmaster,exp:res[0].exp,infight:res[0].infight});
 					});
 					socket.emit('signInResponse', {success:true});
-					console.log('sign in response, success: true');
 				}
 			} else { // wird nicht eingeloggt
 				socket.emit('signInResponse', {success:false});
-				console.log('sign in response, success: false');
 			}	
 		});
 	});
-	
 	//GIVEUP
 	socket.on('giveUp', function(data){
 		data.username = socket.id;
 		aufgeben(data);
 	});
-	
-	
 	//CHALLENGED 
 	socket.on('challengeChoice', function(data){
 		if(data.choice){//create fight
@@ -191,6 +179,11 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 					atk1:PLAYER_LIST[data.challengerUsername].atk1,
 					atk2:PLAYER_LIST[data.challengerUsername].atk2,
 					atk3:PLAYER_LIST[data.challengerUsername].atk3,
+					atk1Strong:ATTACKS[PLAYER_LIST[data.challengerUsername].atk1].strong,
+					atk2Strong:ATTACKS[PLAYER_LIST[data.challengerUsername].atk2].strong,
+					atk3Strong:ATTACKS[PLAYER_LIST[data.challengerUsername].atk3].strong,
+					type:PLAYER_LIST[data.challengerUsername].type,
+					enemyType:PLAYER_LIST[socket.id].type,
 				});
 				//herausgeforderter bekommt FIGHT INIT
 				socket.emit('beginFight', { //init data for opponent
@@ -205,6 +198,11 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 					atk1:PLAYER_LIST[socket.id].atk1,
 					atk2:PLAYER_LIST[socket.id].atk2,
 					atk3:PLAYER_LIST[socket.id].atk3,
+					atk1Strong:ATTACKS[PLAYER_LIST[socket.id].atk1].strong,
+					atk2Strong:ATTACKS[PLAYER_LIST[socket.id].atk2].strong,
+					atk3Strong:ATTACKS[PLAYER_LIST[socket.id].atk3].strong,
+					type:PLAYER_LIST[socket.id].type,
+					enemyType:PLAYER_LIST[data.challengerUsername].type,
 				});
 				fightId++;
 			}
@@ -278,6 +276,31 @@ console.log('Connected clients:', numClients);
 					addUser(data,function(){ //when all is done, say client that it was success (callback)
 						//user with default values was created
 						socket.emit('signUpResponse', {success:true});
+						
+						isValidPassword(data,function(res){
+							if(res){ //wird eingeloggt
+								if(PLAYER_LIST[data.username] != undefined){ //already logged in!
+									socket.emit('alreadyLoggedIn', {});
+								} else {
+									numClients++;
+									db.player.find({username:data.username},function(err,res){
+										//res.length == 1
+										var username = res[0].username; //take username of logged in player from db
+										ready({username:username}); //shows up in opponent list of the otherguild
+										opponentInit(socket);
+										socket.id = username; //set id of socket from logged in player to his username
+										res[0].socket = socket; //
+										PLAYER_LIST[username] = res[0];
+										console.log(PLAYER_LIST);
+										socket.emit('getMyData', {username:username,lvl:res[0].lvl,guild:res[0].guild,guildmaster:res[0].guildmaster,exp:res[0].exp,infight:res[0].infight});
+									});
+									socket.emit('signInResponse', {success:true});
+								}
+							} else { // wird nicht eingeloggt
+								socket.emit('signInResponse', {success:false});
+							}	
+						});
+						
 					});
 				}		
 			});
@@ -471,9 +494,9 @@ var opponentInit = function(socket){
 
 var aufgeben = function(data){
 	//Belohnungen verteilens
-	PLAYER_LIST[data.username].exp += 2;
-	PLAYER_LIST[data.username].socket.emit('addToChat',{message:'Your enemy disconnected or gave up! (You gain 2 exp)',color:'info'});
-	PLAYER_LIST[data.username].socket.emit('getMyData', {exp:PLAYER_LIST[data.username].exp});
+	PLAYER_LIST[data.enemyUsername].exp += 2;
+	PLAYER_LIST[data.enemyUsername].socket.emit('addToChat',{message:'Your enemy disconnected or gave up! (You gain 2 exp)',color:'info'});
+	PLAYER_LIST[data.enemyUsername].socket.emit('getMyData', {exp:PLAYER_LIST[data.username].exp});
 
 	
 	PLAYER_LIST[data.username].infight = false;
@@ -490,131 +513,122 @@ var aufgeben = function(data){
 }
 
 var schadenAnrichten = function(data){
-			var fightId = data.fightId;
-			var socket = data.socket;
-			//ist er auch wirklich am zug???
-			if(hisTurn(socket.id,fightId)){ //name und fightId
-				var newHp;
-				var newHpMe;
-				var nameOfTheOther = '';
-				var lvlQuotient = 1;
-				var typeOfOther = '';
-				var critMult = 1;
-				var hitMult = 1;
-				if(Math.random() < 1-data.atkHit){
-					hitMult = 0;
-					socket.emit('addToChat',{message:'MISS1!!1LOLOOOLOL', color:'info'});
-				} else {
-					if(Math.random() < data.atkCrit){
-						critMult = 1.5;
-						socket.emit('addToChat',{message:'CRITICAL HIT111!11!',color:'info'});
-					}
-				}//END OF MISS
-					data.atkDmg *= critMult;
-					data.atkDmg *= hitMult;
-console.log(fightId);
-console.log(FIGHT_LIST);
-				if(FIGHT_LIST[fightId].opponentUsername === socket.id){ //opponent - thats me: opponent attacks
-					nameOfTheOther = FIGHT_LIST[fightId].challengerUsername;
-					//lvlQuotient = PLAYER_LIST[nameOfTheOther].lvl / PLAYER_LIST[socket.id].lvl;
-console.log('lvlquotient'+lvlQuotient);
-					typeOfOther = PLAYER_LIST[nameOfTheOther].type;
-console.log('typeoftheother '+typeOfOther);
-console.log('data.atkStrong :'+data.atkStrong);
-console.log('type of other'+typeOfOther);
-					if(typeOfOther === data.atkStrong){
-						data.atkDmg *= 1.5;
-						socket.emit('addToChat', {message:data.atkName+' was strong against '+typeOfOther,color:'info'});
-						PLAYER_LIST[nameOfTheOther].socket.emit('addToChat', {message:data.atkName+' was strong against '+typeOfOther,color:'info'});
-					}
-					FIGHT_LIST[fightId].challengerHp -= data.atkDmg * lvlQuotient;
-					//selfdmg
-					FIGHT_LIST[fightId].opponentHp -= data.atkSelfDmg;
-					//chat info
-					socket.emit('addToChat',{message:data.atkDmg*lvlQuotient+' Damage!',color:'info'});
-					PLAYER_LIST[nameOfTheOther].socket.emit('addToChat',{message:data.atkDmg*lvlQuotient+' Damage!',color:'info'});
-					
-		console.log('lvlQuotient: '+lvlQuotient);
-					newHp = FIGHT_LIST[fightId].challengerHp;
-					newHpMe = FIGHT_LIST[fightId].opponentHp;
-				} else { //challenger attacks
-					nameOfTheOther = FIGHT_LIST[fightId].opponentUsername;
-					//lvlQuotient = PLAYER_LIST[socket.id].lvl / PLAYER_LIST[nameOfTheOther].lvl;
-					typeOfOther = PLAYER_LIST[nameOfTheOther].type;
-			console.log('type of other'+typeOfOther);
-					if(typeOfOther === data.atkStrong){
-						data.atkDmg *= 1.5;
-						socket.emit('addToChat', {message:data.atkName+' was strong against '+typeOfOther,color:'info'});
-						PLAYER_LIST[nameOfTheOther].socket.emit('addToChat', {message:data.atkName+' was strong against '+typeOfOther,color:'info'});
-					}
-					FIGHT_LIST[fightId].opponentHp -= data.atkDmg * lvlQuotient;
-					//selfdmg
-					FIGHT_LIST[fightId].challengerHp -= data.atkSelfDmg;
-					//chat info
-					socket.emit('addToChat',{message:data.atkDmg*lvlQuotient+' Damage!',color:'info'});
-					PLAYER_LIST[nameOfTheOther].socket.emit('addToChat',{message:data.atkDmg*lvlQuotient+' Damage!',color:'info'});
-					
-console.log('lvlQuotient: '+lvlQuotient);
-					newHp = FIGHT_LIST[fightId].opponentHp;
-					newHpMe = FIGHT_LIST[fightId].challengerHp;
-				}
-				FIGHT_LIST[fightId].turn = nameOfTheOther;
-
-console.log('die neuen HP für '+nameOfTheOther+' beträgt '+newHp);
-				PLAYER_LIST[nameOfTheOther].socket.emit('yourEnemyTookDmg',{newHp:newHpMe,myturn:true});
-				socket.emit('takeDmg',{newHp:newHpMe});
-				PLAYER_LIST[nameOfTheOther].socket.emit('takeDmg', {newHp:newHp,myturn:true}); //attacked person will recognize
-				socket.emit('yourEnemyTookDmg', {newHp:newHp}); //attacking person will recognize
-				
-				if(newHp <= 0 && newHpMe <=0){
-					socket.emit('endFight', {fightId:fightId});
-					PLAYER_LIST[nameOfTheOther].socket.emit('endFight', {fightId:fightId});
-					//Belohnungen verteilens
-					PLAYER_LIST[socket.id].exp += 3;
-					PLAYER_LIST[nameOfTheOther].exp += 3;
-					socket.emit('addToChat', {message:'Draw! (You gain 3 exp)',color:'info'});
-					PLAYER_LIST[nameOfTheOther].socket.emit('addToChat', {message:'Draw! (You gain 3 exp)',color:'info'});
-					socket.emit('getMyData', {username:socket.id ,exp:PLAYER_LIST[socket.id].exp});
-					PLAYER_LIST[nameOfTheOther].socket.emit('getMyData', {username:nameOfTheOther ,exp:PLAYER_LIST[nameOfTheOther].exp});
-						ready({username:socket.id});
-						ready({username:nameOfTheOther});
-						delete FIGHT_LIST[fightId];
-				} else if(newHpMe <= 0){
-					socket.emit('endFight', {fightId:fightId});
-					PLAYER_LIST[nameOfTheOther].socket.emit('endFight', {fightId:fightId});
-					//Belohnungen verteilens
-					PLAYER_LIST[socket.id].exp += 3;
-					PLAYER_LIST[nameOfTheOther].exp += 5;
-					socket.emit('addToChat', {message:'You killed yourself - you lose! (You gain 3 exp)',color:'info'});
-					PLAYER_LIST[nameOfTheOther].socket.emit('addToChat', {message:socket.id+' killed himself - you won! (You gain 5 exp)',color:'info'});
-					socket.emit('getMyData', {username:socket.id ,exp:PLAYER_LIST[socket.id].exp});
-					PLAYER_LIST[nameOfTheOther].socket.emit('getMyData', {username:nameOfTheOther ,exp:PLAYER_LIST[nameOfTheOther].exp});
-						ready({username:socket.id});
-						ready({username:nameOfTheOther});
-						delete FIGHT_LIST[fightId];
-				} else if(newHp <= 0){
-					socket.emit('endFight', {fightId:fightId});
-					PLAYER_LIST[nameOfTheOther].socket.emit('endFight', {fightId:fightId});
-					//Belohnungen verteilens
-					PLAYER_LIST[socket.id].exp += 5;
-					PLAYER_LIST[nameOfTheOther].exp += 2;
-					socket.emit('addToChat', {message:'You won! (You gain 5 exp)',color:'info'});
-					PLAYER_LIST[nameOfTheOther].socket.emit('addToChat', {message:socket.id+' won! (You gain 2 exp)',color:'info'});
-					socket.emit('getMyData', {username:socket.id ,exp:PLAYER_LIST[socket.id].exp});
-					PLAYER_LIST[nameOfTheOther].socket.emit('getMyData', {username:nameOfTheOther ,exp:PLAYER_LIST[nameOfTheOther].exp});
-						ready({username:socket.id});
-						ready({username:nameOfTheOther});
-						delete FIGHT_LIST[fightId];	
-				} 
+	var fightId = data.fightId;
+	var socket = data.socket;
+	//ist er auch wirklich am zug???
+	if(hisTurn(socket.id,fightId)){ //name und fightId
+		var newHp;
+		var newHpMe;
+		var nameOfTheOther = '';
+		var lvlQuotient = 1;
+		var typeOfOther = '';
+		var critMult = 1;
+		var hitMult = 1;
+		if(Math.random() < 1-data.atkHit){
+			hitMult = 0;
+			socket.emit('addToChat',{message:'MISS1!!1LOLOOOLOL', color:'info'});
+		} else {
+			if(Math.random() < data.atkCrit){
+				critMult = 1.5;
+				socket.emit('addToChat',{message:'CRITICAL HIT111!11!',color:'info'});
 			}
+		}//END OF MISS
+			data.atkDmg *= critMult;
+			data.atkDmg *= hitMult;
+
+		if(FIGHT_LIST[fightId].opponentUsername === socket.id){ //opponent - thats me: opponent attacks
+			nameOfTheOther = FIGHT_LIST[fightId].challengerUsername;
+			//lvlQuotient = PLAYER_LIST[nameOfTheOther].lvl / PLAYER_LIST[socket.id].lvl;
+
+			typeOfOther = PLAYER_LIST[nameOfTheOther].type;
+
+			if(typeOfOther === data.atkStrong){
+				data.atkDmg *= 1.5;
+				socket.emit('addToChat', {message:data.atkName+' was strong against '+typeOfOther,color:'info'});
+				PLAYER_LIST[nameOfTheOther].socket.emit('addToChat', {message:data.atkName+' was strong against '+typeOfOther,color:'info'});
+			}
+			FIGHT_LIST[fightId].challengerHp -= data.atkDmg * lvlQuotient;
+			//selfdmg
+			FIGHT_LIST[fightId].opponentHp -= data.atkSelfDmg;
+			//chat info
+			socket.emit('addToChat',{message:data.atkDmg*lvlQuotient+' Damage!',color:'info'});
+			PLAYER_LIST[nameOfTheOther].socket.emit('addToChat',{message:data.atkDmg*lvlQuotient+' Damage!',color:'info'});
 			
-			
+
+			newHp = FIGHT_LIST[fightId].challengerHp;
+			newHpMe = FIGHT_LIST[fightId].opponentHp;
+		} else { //challenger attacks
+			nameOfTheOther = FIGHT_LIST[fightId].opponentUsername;
+			//lvlQuotient = PLAYER_LIST[socket.id].lvl / PLAYER_LIST[nameOfTheOther].lvl;
+			typeOfOther = PLAYER_LIST[nameOfTheOther].type;
+
+			if(typeOfOther === data.atkStrong){
+				data.atkDmg *= 1.5;
+				socket.emit('addToChat', {message:data.atkName+' was strong against '+typeOfOther,color:'info'});
+				PLAYER_LIST[nameOfTheOther].socket.emit('addToChat', {message:data.atkName+' was strong against '+typeOfOther,color:'info'});
+			}
+			FIGHT_LIST[fightId].opponentHp -= data.atkDmg * lvlQuotient;
+			//selfdmg
+			FIGHT_LIST[fightId].challengerHp -= data.atkSelfDmg;
+			//chat info
+			socket.emit('addToChat',{message:data.atkDmg*lvlQuotient+' Damage!',color:'info'});
+			PLAYER_LIST[nameOfTheOther].socket.emit('addToChat',{message:data.atkDmg*lvlQuotient+' Damage!',color:'info'});
+
+			newHp = FIGHT_LIST[fightId].opponentHp;
+			newHpMe = FIGHT_LIST[fightId].challengerHp;
+		}
+		FIGHT_LIST[fightId].turn = nameOfTheOther;
+		PLAYER_LIST[nameOfTheOther].socket.emit('yourEnemyTookDmg',{newHp:newHpMe,myturn:true});
+		socket.emit('takeDmg',{newHp:newHpMe});
+		PLAYER_LIST[nameOfTheOther].socket.emit('takeDmg', {newHp:newHp,myturn:true}); //attacked person will recognize
+		socket.emit('yourEnemyTookDmg', {newHp:newHp}); //attacking person will recognize
+		//Entscheiden, wer gewonnen hat (Unentschieden ODER selbst getötet ODER gewonnen)
+		if(newHp <= 0 && newHpMe <=0){
+			socket.emit('endFight', {fightId:fightId});
+			PLAYER_LIST[nameOfTheOther].socket.emit('endFight', {fightId:fightId});
+			//Belohnungen verteilens
+			PLAYER_LIST[socket.id].exp += 3;
+			PLAYER_LIST[nameOfTheOther].exp += 3;
+			socket.emit('addToChat', {message:'Draw! (You gain 3 exp)',color:'info'});
+			PLAYER_LIST[nameOfTheOther].socket.emit('addToChat', {message:'Draw! (You gain 3 exp)',color:'info'});
+			socket.emit('getMyData', {username:socket.id ,exp:PLAYER_LIST[socket.id].exp});
+			PLAYER_LIST[nameOfTheOther].socket.emit('getMyData', {username:nameOfTheOther ,exp:PLAYER_LIST[nameOfTheOther].exp});
+			ready({username:socket.id});
+			ready({username:nameOfTheOther});
+			delete FIGHT_LIST[fightId];
+		} else if(newHpMe <= 0){
+			socket.emit('endFight', {fightId:fightId});
+			PLAYER_LIST[nameOfTheOther].socket.emit('endFight', {fightId:fightId});
+			//Belohnungen verteilens
+			PLAYER_LIST[socket.id].exp += 3;
+			PLAYER_LIST[nameOfTheOther].exp += 5;
+			socket.emit('addToChat', {message:'You killed yourself - you lose! (You gain 3 exp)',color:'info'});
+			PLAYER_LIST[nameOfTheOther].socket.emit('addToChat', {message:socket.id+' killed himself - you won! (You gain 5 exp)',color:'info'});
+			socket.emit('getMyData', {username:socket.id ,exp:PLAYER_LIST[socket.id].exp});
+			PLAYER_LIST[nameOfTheOther].socket.emit('getMyData', {username:nameOfTheOther ,exp:PLAYER_LIST[nameOfTheOther].exp});
+			ready({username:socket.id});
+			ready({username:nameOfTheOther});
+			delete FIGHT_LIST[fightId];
+		} else if(newHp <= 0){
+			socket.emit('endFight', {fightId:fightId});
+			PLAYER_LIST[nameOfTheOther].socket.emit('endFight', {fightId:fightId});
+			//Belohnungen verteilens
+			PLAYER_LIST[socket.id].exp += 5;
+			PLAYER_LIST[nameOfTheOther].exp += 2;
+			socket.emit('addToChat', {message:'You won! (You gain 5 exp)',color:'info'});
+			PLAYER_LIST[nameOfTheOther].socket.emit('addToChat', {message:socket.id+' won! (You gain 2 exp)',color:'info'});
+			socket.emit('getMyData', {username:socket.id ,exp:PLAYER_LIST[socket.id].exp});
+			PLAYER_LIST[nameOfTheOther].socket.emit('getMyData', {username:nameOfTheOther ,exp:PLAYER_LIST[nameOfTheOther].exp});
+			ready({username:socket.id});
+			ready({username:nameOfTheOther});
+			delete FIGHT_LIST[fightId];	
+		} 
+	}
 }
 
 var hisTurn = function(name,fightId){
 	return name === FIGHT_LIST[fightId].turn;
 }
-
 var calculateDmg = function(){
 	//TODO elements crit and stuff
 }
@@ -637,18 +651,14 @@ var isUsernameTaken = function(data,cb){
 		}
 	});
 }
-
 //show everybody he came on / out of fight
 function ready(data){
 	for(var key in PLAYER_LIST){
-console.log('key in playerlist'+key);
 		if(PLAYER_LIST[key].username != data.username){
-console.log('its not equal???? the data.username is '+data.username);
 			PLAYER_LIST[key].socket.emit('ready', data);
 		}
 	}
 }
-
 //show everybody he went off / went into fight
 function busy(data){
 	for(var key in PLAYER_LIST){

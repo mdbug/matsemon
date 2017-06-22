@@ -7,6 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "matse",
-  "license": ""
-  "scripts": {"start": "mongod --dbpath=/C:\Program Files\MongoDB\Server\3.4\bin --port 27017 --fork"}
+  "license": "",
+  "dependencies": {
+    "mongodb-stitch": "0.0.16"
+  }
 }
