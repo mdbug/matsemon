@@ -7,7 +7,9 @@
 	<!--<link rel="stylesheet" href="/client/bootstrap-theme.min.css">-->
 	<script src="/client/jquery-3.2.1.min.js"></script>
 	<script src="/client/bootstrap.min.js"></script>
-	
+			<!-- Animationen -->
+			<link rel="stylesheet" type="text/css" href="/client/public/css/fightAnim.css">
+			<script src="/client/public/scripts/fightAnim.js"></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<meta charset="UTF-8">
 	<rel src="style.css" type="text/css">
@@ -190,7 +192,18 @@ var ATTACKS = {
 			<div id="eventMessage" class=" text-center" style="position:relative;top:50px;" height="200px" width="500px" style="border:1px solid red">
 				sth in here of events
 			</div>
-			<canvas id="fightDivAnimations" height="200px" width="500px" style="border:1px solid red">MONSTER FIGHT IN HERE</canvas>
+			
+			<div class="fightWindow col-xs-12" style="border:1px solid black">
+				<div class="projectile"  style="border:1px solid black"></div>
+				<div class="fighter" style="border:1px solid black">
+					<div class="idle" style="border:1px solid black"></div>
+				</div>
+				<div class="spaceBetween" style="border:1px solid black"></div>
+				<div class="opponent" style="border:1px solid black">
+					<div class="opponentIdle" style="border:1px solid black"></div>
+				</div>
+			</div>	
+				
 			<div class="row" id="">		
 				<div class="progress col-xs-6" style="background-color:rgba(0,0,0,0);border:0px;">
 					<div style="background-color:rgb(0,255,0);color:black;border:1px solid black" id="fightDivMyHp" class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%"></div>
@@ -478,16 +491,19 @@ console.log('message is now (/g):'+message);
 	}
 	fightDivAttacksButton1.onclick = function(){
 		socket.emit('atk1', {});
+		shoot();
 		//fightDivAttacks ausblenden
 		fightDivAttacks.style.visibility = 'hidden'; 
 	}
 	fightDivAttacksButton2.onclick = function(){
 		socket.emit('atk2', {});
+		shoot();
 		//fightDivAttacks ausblenden
 		fightDivAttacks.style.visibility = 'hidden'; 
 	}
 	fightDivAttacksButton3.onclick = function(){
 		socket.emit('atk3', {});
+		slash();
 		//fightDivAttacks ausblenden
 		fightDivAttacks.style.visibility = 'hidden'; 
 	}
@@ -675,6 +691,19 @@ console.log(data.opponentUsername+' agreed your challenge!'); //Nur zum debuggen
 	socket.on('beginFight', function(data){
 		//TODO SHOW YOUR TYPE AND ENEMY TYPE
 		addToChat('mytype:'+data.type+'enemyType:'+data.enemyType);
+		var myChar;
+		var enemyChar;
+		switch(data.type){
+			case 'mystic': myChar = 'girl'; break;
+			case 'holy': myChar = 'santa'; break;
+			case 'science': myChar = 'robo'; break;
+		}
+		switch(data.enemyType){
+			case 'mystic': enemyChar = 'girl'; break;
+			case 'holy': enemyChar = 'santa'; break;
+			case 'science': enemyChar = 'robo'; break;
+		}
+		loadFighter(myChar,enemyChar);
 		
 		fightDivMyHp.style.backgroundColor = 'rgb(0,255,0)';
 		fightDivEnemyHp.style.backgroundColor = 'rgb(0,255,0)';
