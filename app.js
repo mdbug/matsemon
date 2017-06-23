@@ -258,7 +258,7 @@ console.log('Connected clients:', numClients);
 				}
 			}
 			
-			db.player.update({username:socket.id}, {$set: {exp:PLAYER_LIST[socket.id].exp, lvl:playerlvl,atk1:PLAYER_LIST[socket.id].atk1,atk2:PLAYER_LIST[socket.id].atk2,atk3:PLAYER_LIST[socket.id].atk3}}); //EXP IN DB SPEICHERN!
+			db.player.update({username:socket.id}, {$set: {exp:PLAYER_LIST[socket.id].exp, lvl:playerlvl,atk1:PLAYER_LIST[socket.id].atk1,atk2:PLAYER_LIST[socket.id].atk2,atk3:PLAYER_LIST[socket.id].atk3, type:PLAYER_LIST[}}); //EXP IN DB SPEICHERN!
 			delete PLAYER_LIST[socket.id];
 			numClients--;
 		} catch(err){
@@ -471,13 +471,8 @@ console.log('Connected clients:', numClients);
 		//skip can skip some of the first documents (for next pages)
 		//limit limits the amount of documents
 		db.player.find({lvl:{$gt:0}}).sort({lvl:-1}).skip(0).limit(5, function(err,res){
-			console.log(res);
-			res.forEach(console.log);
 			socket.emit('sendBestData', res);
 		});
-		//console.log(cursor);
-		//console.log(cursor.next());
-		//socket.emit('sendBestData', cursor);
 	});
 	
 	
