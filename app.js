@@ -258,7 +258,7 @@ console.log('Connected clients:', numClients);
 				}
 			}
 			
-			db.player.update({username:socket.id}, {$set: {exp:PLAYER_LIST[socket.id].exp, lvl:playerlvl,atk1:PLAYER_LIST[socket.id].atk1,atk2:PLAYER_LIST[socket.id].atk2,atk3:PLAYER_LIST[socket.id].atk3, type:PLAYER_LIST[}}); //EXP IN DB SPEICHERN!
+			db.player.update({username:socket.id}, {$set: {exp:PLAYER_LIST[socket.id].exp, lvl:playerlvl,atk1:PLAYER_LIST[socket.id].atk1,atk2:PLAYER_LIST[socket.id].atk2,atk3:PLAYER_LIST[socket.id].atk3, type:PLAYER_LIST[socket.id].type}}); //EXP IN DB SPEICHERN!
 			delete PLAYER_LIST[socket.id];
 			numClients--;
 		} catch(err){
