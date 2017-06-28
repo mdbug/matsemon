@@ -1,0 +1,11 @@
+//Elo-Zahl-Modul - Berechnet mithilfe der bisherigen Elo-Zahlen zweier Spieler und dem Spielergebnis die neuen Punktstaende
+var R_A; //bisherige Elo-Zahl von Spieler A 
+var R_B; //bisherige Elo-Zahl von Spieler B
+var S_A; //Sieg:1, Unentschieden:0.5, Niederlage:0
+var S_B; //Sieg:1, Unentschieden:0.5, Niederlage:0
+var k = 20; //Gewichtung
+var E_A = 1/(1 + Math.pow(10, (R_B - R_A)/400)); //Erwartungswert Spieler A
+var E_B = 1/(1 + Math.pow(10, (R_A - R_B)/400)); //Erwartungswert Spieler B
+//E_A + E_B = 1
+var R_A_new = R_A + k * (S_A - R_A);
+var R_B_new = R_B + k * (S_B - R_B);

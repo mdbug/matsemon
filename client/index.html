@@ -40,6 +40,14 @@
 		background-attachment: fixed;
 		background-repeat: no repeat;
 	}
+	#bestDiv {
+		color:;
+		background-image: url('/client/img/paper.jpg');
+		background-size:;
+		background-position:;
+		background-attachment:;
+		background-repeat:;
+	}
 	.possibleOpponent{
 		cursor: url('/client/img/sword7.png'), auto;
 		background-color: rgba(255,255,255,0.7);
@@ -78,12 +86,21 @@
 		background-color:black;
 		color:white;
 	}
+	#dismissRanking:hover{
+		color:orange;
+	}
+	a, .a{
+		color:orange;
+	}
+	a:hover, .a:hover{
+		color:white;
+	}
 	</style>
 </head>
-<body>
+<body id="body">
 <div class="row">
 	<div id="containerDiv" class="container col-xs-12 col-md-8 col-md-offset-2 "><!-- HTML-STRUKTUR-->
-		<div class="col-xs-12 matsemonHeaderFont" style="padding-top:3px;background-color:black;color:white;">
+		<div class="col-xs-12 matsemonHeaderFont" style="padding-top:3px;background-color:#333;color:white;">
 			<div class="col-xs-6">
 				<!-- Button trigger modal --><a id="showRanking" type="button" class="" data-toggle="modal" data-target="#ranking">Ranking</a>
 			</div>
@@ -92,11 +109,11 @@
 					<a style="background-color:rgba(0,0,0,0);border:0px;" class="dropdown-toggle" type="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						Menu
 					</a>
-					<ul class="dropdown-menu" aria-labelledby="dropdownMenu" style="background-color:black">
-						<li><a style="color:blue" href="#">About</a></li>
+					<ul class="dropdown-menu" aria-labelledby="dropdownMenu" style="background-color:#333">
+						<li><a class="a" href="#">About</a></li>
 						<li role="separator" class="divider"></li>
-						<li><a  style="color:blue"href="#">Impressum</a></li>
-						<li><a  style="color:blue"href="#">Facebook</a></li>
+						<li><a class="a" href="#">Impressum</a></li>
+						<li><a class="a" href="#">Facebook</a></li>
 					</ul>
 				</div>
 			</div>
@@ -117,6 +134,10 @@
 		</audio>
 		<audio id="audio6" controls hidden src="http://www.downloadfreesound.com/wp-content/uploads/2013/08/Beep8.wav">
 		</audio>
+		<audio id="audio7" controls hidden src="http://www.wavsource.com/snds_2017-06-18_4861080274558637/movie_stars/schwarzenegger/erased.wav">
+		</audio>
+		<audio id="audio8" controls hidden src="/client/sound/damn.wav">
+		</audio>
 		<!-- SIGN -->
 		<div id="signDiv" class="col-xs-12" style="">
 			<div  class="form-group">
@@ -136,33 +157,33 @@
 		<script>
 var ATTACKS = {
 	//mystic attacks
-	'Death Grip':{type:'mystic',strong:'science',dmg:19,hit:0.6,crit:0,selfdmg:0}, //lvl 1
+	'Death Grip':{type:'mystic',strong:'science',dmg:19,hit:0.7,crit:0,selfdmg:0}, //lvl 1
 	'Doom':{type:'mystic',strong:'',dmg:15,hit:1,crit:0.3,selfdmg:2}, //lvl 1
 	'Soul Harvest':{type:'mystic',strong:'holy',dmg:13,hit:0.8,crit:0.3,selfdmg:-4}, //lvl 5
 	'Ghoul Explosion':{type:'mystic',strong:'science',dmg:20,hit:0.8,crit:0.3,selfdmg:8}, //lvl 10
-	'Summon Satan':{type:'mystic',strong:'science',dmg:66,hit:0.6,crit:0.6,selfdmg:6}, //lvl 20
-	'Darkness':{type:'mystic',strong:'science',dmg:99,hit:0.4,crit:0,selfdmg:25}, //lvl 15
+	'Summon Satan':{type:'mystic',strong:'science',dmg:66,hit:0.1,crit:0.6,selfdmg:-12}, //lvl 20
+	'Darkness':{type:'mystic',strong:'science',dmg:99,hit:0.2,crit:0,selfdmg:25}, //lvl 15
 	
 	//holy attacks
 	'Holy Pain':{type:'holy',strong:'mystic',dmg:16,hit:0.8,crit:0.3,selfdmg:-2}, //lvl 1
-	'Jesus Punch':{type:'holy',strong:'',dmg:9,hit:1,crit:0.8,selfdmg:1}, //lvl 1
+	'Jesus Punch':{type:'holy',strong:'',dmg:12,hit:1,crit:0.8,selfdmg:1}, //lvl 1
 	'Exorcism':{type:'holy',strong:'mystic',dmg:15,hit:0.9,crit:0,selfdmg:1}, //lvl 10
-	'Heal':{type:'holy',strong:'science',dmg:0,hit:1,crit:0,selfdmg:-15}, //lvl 5
-	'Rape':{type:'holy',strong:'mystic',dmg:20,hit:0.4,crit:0.2,selfdmg:-10}, //lvl 20
-	'Throw Bible':{type:'holy',strong:'mystic',dmg:30,hit:0.9,crit:0.2,selfdmg:-30}, //lvl 15
+	'Heal':{type:'holy',strong:'science',dmg:0,hit:1,crit:0,selfdmg:-19}, //lvl 5
+	'Rape':{type:'holy',strong:'mystic',dmg:20,hit:0.4,crit:0.2,selfdmg:-8}, //lvl 20
+	'Throw Bible':{type:'holy',strong:'mystic',dmg:30,hit:0.5,crit:0.2,selfdmg:-5}, //lvl 15
 	
 	//science attacks
 	'Zero-Division':{type:'science',strong:'',dmg:100,hit:0.1,crit:0,selfdmg:50}, //lvl 1
 	'Analysis 2':{type:'science',strong:'holy',dmg:13,hit:0.8,crit:0.5,selfdmg:0}, //lvl 10
 	'Epsilon-Delta-Crit':{type:'science',strong:'holy',dmg:15,hit:0.6,crit:1,selfdmg:5}, //lvl 15
-	'Gauß':{type:'science',strong:'mystic',dmg:9,hit:0.9,crit:0.2,selfdmg:-9}, //lvl 1
-	'Sumzing sumzing':{type:'science',strong:'holy',dmg:17,hit:0.9,crit:0.7,selfdmg:0},//lvl 5
-	'Horners Method':{type:'science',strong:'mystic',dmg:26,hit:0.6,crit:0.7,selfdmg:5}, //lvl 20
+	'Gauß':{type:'science',strong:'mystic',dmg:7,hit:0.9,crit:0.2,selfdmg:-9}, //lvl 1
+	'Sumzing sumzing':{type:'science',strong:'holy',dmg:11,hit:0.9,crit:0.7,selfdmg:1},//lvl 5
+	'Horners Method':{type:'science',strong:'mystic',dmg:26,hit:0.6,crit:0.7,selfdmg:10}, //lvl 20
 	
 	//GM-Attacks
-	'OnePunch':{type:'gm',strong:'holy',dmg:1337,hit:1,crit:1,selfdmg:-1337},
-	'GodMode':{type:'gm',strong:'',dmg:0,hit:1,crit:0,selfdmg:-200000000},
-	'Aimbot':{type:'gm',strong:'',dmg:1000,hit:1000,crit:1000,selfdmg:0},
+	'OnePunch':{type:'',strong:'holy',dmg:1337,hit:1,crit:1,selfdmg:-1337},
+	'GodMode':{type:'',strong:'',dmg:0,hit:1,crit:0,selfdmg:-200000000},
+	'Aimbot':{type:'',strong:'',dmg:1000,hit:1000,crit:1000,selfdmg:0},
 };
 		var choseType = false;
 		var atk1 = '';
@@ -263,6 +284,7 @@ var ATTACKS = {
 		}
 		</script>
 		<div id="chooseTypeDiv" class="col-xs-12" style="display:none">
+			<h2>Choose your type and three attacks to be prepared for battle!</h2>
 			<div class="col-xs-4 matsemonHeaderFont" id="mystic" onclick="choose(this)"><img width="50" height="50" style="background-color:" src="/client/img/mystic.png">mystic</div>
 			<div class="col-xs-4 matsemonHeaderFont" id="holy" onclick="choose(this)"><img width="50" height="50" style="background-color:" src="/client/img/holy.png">holy</div>
 			<div class="col-xs-4 matsemonHeaderFont" id="science" onclick="choose(this)"><img width="50" height="50" style="background-color:" src="/client/img/science.png">science</div>
@@ -271,7 +293,7 @@ var ATTACKS = {
 		</div>
 		<!-- FIGHT -->
 		<div id="fightDiv" class="col-xs-12" style="display:none;float:left;">
-			<div id="eventMessage" class=" text-center" style="position:relative;top:50px;" height="200px" width="500px" style="border:1px solid red">
+			<div id="eventMessage" class=" text-center" style="position:relative;top:100px;" height="200px" width="500px" style="border:1px solid red">
 				sth in here of events
 			</div>
 			
@@ -324,11 +346,9 @@ var ATTACKS = {
 <div class="modal fade" id="ranking" tabindex="-1" role="dialog" aria-labelledby="rankingLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <div class="matsemonHeaderFont">
-        Ranking        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-
+      <div class="matsemonHeaderFont" style="background-color:#222222;color:white;">
+        Ranking
+		<span id="dismissRanking" aria-hidden="true" style="color:white;float:right;cursor:crosshair;" data-dismiss="modal">&times;</span>
       </div>
 		<!-- BEST -->
 	  <div id="bestDiv" class="modal-body col-xs-12 text-center" style="display:;border:1px solid black;background-color:white">
@@ -410,6 +430,8 @@ var ATTACKS = {
 	var audio4 = document.getElementById('audio4');
 	var audio5 = document.getElementById('audio5');
 	var audio6 = document.getElementById('audio6');
+	var audio7 = document.getElementById('audio7');
+	var audio8 = document.getElementById('audio8');
 	var signDiv = document.getElementById('signDiv');
 	var signDivUsername = document.getElementById('signDivUsername');
 	var signDivPassword = document.getElementById('signDivPassword');
@@ -458,6 +480,11 @@ var ATTACKS = {
 	var inChatInput = false; //Zum Herausfinden, ob der Spieler gerade etwas im Chat eintippt
 	var loggedIn = false;
 	var guildInvitation;
+	var typeColor = {
+		'mystic':'#c896ff',
+		'holy':'#fdff96',
+		'science':'#96ccff',
+	};
 	/******************************************* VARIABLES END ************************************************/
 	/******************************************* FUNCTIONS BEGIN ******************************************************/
 	function addToChat(data, color){
@@ -592,7 +619,7 @@ console.log('message is now (/g):'+message);
 				socket.emit('atk3',{});
 				fightDivAttacks.style.visibility = 'hidden'; 
 			} else if(event.keyCode === 52){ //4
-				socket.emit('giveUp', {fightId:fightDivInfoFightId.innerHTML, enemyUsername:fightDivInfoEnemyUsername.innerHTML});
+				socket.emit('giveUp', {});
 				fightDivAttacks.style.visibility = 'hidden'; 
 			} else if(event.keyCode === 13 && !loggedIn){ //Enter
 				socket.emit('signIn', {username:signDivUsername.value, password:signDivPassword.value});
@@ -751,18 +778,19 @@ console.log('message is now (/g):'+message);
 		opponentDivList.innerHTML = '';
 		}
 		try{
-			var sth = document.getElementById(data.username).style.color;
+			var sth = document.getElementById(data.username).style.color; //Lol: workaround
 		}catch(err){
-			opponentDivList.innerHTML += '<div id="'+data.username+'" class="possibleOpponent " style="border:1px dashed black;margin:0px;padding:0px">'+data.username+'</div><br/>';
+			opponentDivList.innerHTML += '<div id="'+data.username+'" class="possibleOpponent " style="border:1px solid black;margin:0px;padding:0px">'+data.username+' - elo: '+data.elo+'</div><br/>';
 			addOnclickEvents(data.username); //onclick event hinzufuegen
 		}
 	});
 	//READY - WIRD ZUR OPPONENT-LIST HINZUGEFÜGT
 	socket.on('ready', function(data){ //data is JSON
 		try{
+			document.getElementById(data.username).innerHTML = data.username+' - elo: '+data.elo;
 			var sth = document.getElementById(data.username).style.color;
 		}catch(err){
-			opponentDivList.innerHTML += '<div id="'+data.username+'" class="possibleOpponent " style="border:1px dashed black;margin:0px;padding:0px">'+data.username+'</div><br/>';
+			opponentDivList.innerHTML += '<div id="'+data.username+'" class="possibleOpponent " style="border:1px dashed black;margin:0px;padding:0px">'+data.username+' - elo: '+data.elo+'</div><br/>';
 			addOnclickEvents(data.username); //onclick event hinzufuegen
 		}
 	});
@@ -800,7 +828,6 @@ console.log(data.opponentUsername+' agreed your challenge!'); //Nur zum debuggen
 	//FIGHT INIT - ALLE DATEN WERDEN ERST EINMAL INITIALISIERT
 	socket.on('beginFight', function(data){
 		//TODO SHOW YOUR TYPE AND ENEMY TYPE
-		addToChat('mytype:'+data.type+'enemyType:'+data.enemyType);
 		var myChar;
 		var enemyChar;
 		switch(data.type){
@@ -813,16 +840,12 @@ console.log(data.opponentUsername+' agreed your challenge!'); //Nur zum debuggen
 			case 'holy': enemyChar = 'santa'; break;
 			case 'science': enemyChar = 'robo'; break;
 		}
-		loadFighter(myChar,enemyChar);
+		loadFighter(myChar,enemyChar); //yannicks embedded function
 		
 		fightDivMyHp.style.backgroundColor = 'rgb(0,255,0)';
 		fightDivEnemyHp.style.backgroundColor = 'rgb(0,255,0)';
 		
-		var typeColor = {
-			'mystic':'#c896ff',
-			'holy':'#fdff96',
-			'science':'#96ccff',
-		};
+
 		
 		fightDivAttacksButton1.innerHTML = data.atk1;
 		console.log(data.atk1Strong);
@@ -841,23 +864,24 @@ console.log(data.opponentUsername+' agreed your challenge!'); //Nur zum debuggen
 			fightDivAttacksButton3.style.color = 'black';
 		}
 		
-		fightDivMyHp.innerHTML = data.myUsername;
-		fightDivEnemyHp.innerHTML = data.enemyUsername;
-		
 		addToChat('Fight starts!', infoColor);
-		fightDivInfoMyUsername.innerHTML = data.myUsername;
+		
+		fightDivMyHp.innerHTML = data.myUsername;
+		fightDivMyHp.style.width = '100%';
+		fightDivEnemyHp.innerHTML = data.enemyUsername;
+		fightDivEnemyHp.style.width = '100%';
+
+		/*fightDivInfoMyUsername.innerHTML = data.myUsername;
 		fightDivInfoEnemyUsername.innerHTML = data.enemyUsername;
 		fightDivInfoMyGuild.innerHTML = data.myGuild;
 		fightDivInfoEnemyGuild.innerHTML = data.enemyGuild;
 		fightDivInfoMyLvl.innerHTML = data.myLvl;
 		fightDivInfoEnemyLvl.innerHTML = data.enemyLvl;
-console.log('das ist das fight init - enemy lvl '+data.enemeyLvl);
 		fightDivInfoMyHp.innerHTML = 100;
-		fightDivMyHp.style.width = '100%';
 		fightDivInfoEnemyHp.innerHTML = 100;
-		fightDivEnemyHp.style.width = '100%';
 		fightDivInfoFightId.innerHTML =  data.fightId;
-		fightDivInfoTurn.innerHTML = data.turn;
+		fightDivInfoTurn.innerHTML = data.turn;*/
+	
 		//oponentDiv ausblenden und fightDiv einblenden und fightDivAttacks ausblenden, falls nicht am Zug
 		opponentDiv.style.display = 'none';
 		fightDiv.style.display = 'inline-block';
@@ -870,7 +894,7 @@ console.log('das ist das fight init - enemy lvl '+data.enemeyLvl);
 	//END FIGHT
 	socket.on('endFight', function(data){
 		addToChat('Fight is over!', infoColor);
-
+		audio7.play();
 		//opponentDiv wird eingeblendet und fightDiv wird ausgeblendet
 		setTimeout(function(){
 			opponentDiv.style.display = 'inline-block';
@@ -944,11 +968,21 @@ console.log('das ist das fight init - enemy lvl '+data.enemeyLvl);
 	});
 	//EVENT-MESSAGES
 	socket.on('eventMessage', function(data){
-		document.getElementById('eventMessage').innerHTML = '<c style="font-size:2em;color:red">CRIT!</c>';
+		if(data.message == 'CRIT'){
+			containerDiv.style.background = "black";
+			setTimeout(function(){
+				containerDiv.style.background = "rgba(0,0,0,0)";
+			}, 1000);
+			//CRITSOUND
+			audio8.play();
+		} else if(data.message == 'MISS'){
+			//MISSSOUND
+		}
+		document.getElementById('eventMessage').innerHTML = '<c style="font-size:2em;color:red;font-family:matsemonHeaderFont" >'+data.message+'</c>';
 		setInterval(function(){
-			//after 1 s
+			//after 2 s
 			document.getElementById('eventMessage').innerHTML = '';
-		},1000);
+		},2000);
 	});
 	//ATTACK HANDLING - DAMAGE
 	socket.on('atkResponse', function(data){
@@ -963,13 +997,13 @@ console.log('das ist das fight init - enemy lvl '+data.enemeyLvl);
 	});
 	//BEST
 	socket.on('sendBestData', function(res){
+		//TODO your rank
 		bestDiv.innerHTML = '';
-		var cnt = 0;
+		var cnt = 1;
 		for(var key in res){
-			bestDiv.innerHTML += cnt+'. with lvl '+res[key].lvl+' is '+res[key].username+'<br>';
+			bestDiv.innerHTML += cnt+'. with elo value '+res[key].elo+' is '+res[key].username+'<br>';
 			cnt++;
 		}
-		bestDiv.innerHTML += 'Hide this view: <code>/best</code>';
 	});
 	document.getElementById('showRanking').onclick = function(){
 	console.log('GETBESTDATA!');
