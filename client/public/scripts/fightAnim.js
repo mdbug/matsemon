@@ -68,9 +68,12 @@ function slash(){
 	
 id.addClass(atkR);
 		atk.removeClass(idR);
+		$('.fighter').addClass('moveLeft');
+		
 		setTimeout(function() { $('.projectile').addClass('blood'); }, 400);
 		setTimeout(function() { atk.addClass(idR); }, 600);
         setTimeout(function() { id.removeClass(atkR); }, 600);
+		setTimeout(function() { $('.fighter').removeClass('moveLeft');; }, 600);
         setTimeout(function() { $('.projectile').removeClass('blood'); }, 700);
 				
 		setTimeout(function() { idO.addClass(deadOR);}, 500);
@@ -83,16 +86,18 @@ id.addClass(atkR);
 
 
 function getSlashed(){
-
+	
 		idO.addClass(atkOR);	
 		atkO.removeClass(idOR);
 		
+		$('.opponent').addClass('moveRight');
 		setTimeout(function() { $('.projectile').addClass('blood'); }, 400);
 		setTimeout(function() { $('.blood').css("left", "0%");}, 400);	
 		
 		
 		setTimeout(function() { atkO.addClass(idOR); }, 600);
         setTimeout(function() { idO.removeClass(atkOR); }, 600);
+		setTimeout(function() { $('.opponent').removeClass('moveRight');; }, 600);
 		
 		setTimeout(function() { $('.blood').css("left", "");}, 700);	
 		setTimeout(function() { $('.projectile').removeClass('blood'); }, 700);
@@ -107,6 +112,10 @@ function getSlashed(){
 		setTimeout(function() { dead.css("transform", "1");}, 1000);	
 	
 
+	
+
+
+	
 }
 
 function loose(){
@@ -151,7 +160,7 @@ function loadFighter(fighter, opponent){
 
 	var you = fighter;
 	var other  = opponent;
-	
+	$('.fightWindow').show();
 $('.idle').addClass(you+'Idle');
 $('.'+you+'Idle').removeClass('idle');
 $('.opponentIdle').addClass(other+'Idle');
@@ -177,11 +186,11 @@ window.deadOR = ''+other+'Dead';
 window.atkO = $('.'+other+'Attack');
 window.atkOR = ''+other+'Attack';
 
-var tempatk= atkO.css('animation')+" , animation: moveLeft steps(10) 0.7s infinite";
+
 	
 	//atkO.css(tempatk);
-//	atk.css("animation", atk.css('animation')+" , animation: moveRight steps(10) 0.7s infinite");
-	 
+	atkO.css("animation",""+other+"AttackAnimOpponent steps(10) 0.5s infinite");
+	//atk.css("animation",""+you+"AttackAnim steps(10) 0.5s infinite; "); 
 	 
 	 id.css("transform","scaleX(1)");
 	 tro.css("transform","scaleX(1)");

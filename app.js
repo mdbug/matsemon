@@ -17,20 +17,21 @@ var numClients = 0;
 var FIGHT_LIST = [];
 var FIGHT_REQUEST_LIST = []; //Hier sollen alle Spieler rein, die herausgefordert wurden oder jemanden herausfordern - Niemand hieraus soll eine Anfrage stellen dürfen oder angefragt werden! Dies würde zu Problemen führen
 var PLAYER_LIST = [];
+var READY_LIST = [];
 var ATTACKS = {
 	//mystic attacks
-	'Death Grip':{type:'mystic',strong:'science',dmg:19,hit:0.7,crit:0,selfdmg:0}, //lvl 1
+	'Death Grip':{type:'mystic',strong:'science',dmg:{dmgFrom: 13, dmgTo: 22},hit:0.7,crit:0,selfdmg:0}, //lvl 1
 	'Doom':{type:'mystic',strong:'',dmg:15,hit:1,crit:0.3,selfdmg:2}, //lvl 1
 	'Soul Harvest':{type:'mystic',strong:'holy',dmg:13,hit:0.8,crit:0.3,selfdmg:-4}, //lvl 5
 	'Ghoul Explosion':{type:'mystic',strong:'science',dmg:20,hit:0.8,crit:0.3,selfdmg:8}, //lvl 10
-	'Summon Satan':{type:'mystic',strong:'science',dmg:66,hit:0.1,crit:0.6,selfdmg:-12}, //lvl 20
-	'Darkness':{type:'mystic',strong:'science',dmg:99,hit:0.2,crit:0,selfdmg:25}, //lvl 15
+	'Summon Satan':{type:'mystic',strong:'science',dmg:{dmgFrom:0,dmgTo:66},hit:0.2,crit:0.6,selfdmg:-6}, //lvl 20
+	'Darkness':{type:'mystic',strong:'science',dmg:{dmgFrom:0,dmgTo:99},hit:0.33,crit:0,selfdmg:6}, //lvl 15
 	
 	//holy attacks
 	'Holy Pain':{type:'holy',strong:'mystic',dmg:16,hit:0.8,crit:0.3,selfdmg:-2}, //lvl 1
 	'Jesus Punch':{type:'holy',strong:'',dmg:12,hit:1,crit:0.8,selfdmg:1}, //lvl 1
 	'Exorcism':{type:'holy',strong:'mystic',dmg:15,hit:0.9,crit:0,selfdmg:1}, //lvl 10
-	'Heal':{type:'holy',strong:'science',dmg:0,hit:1,crit:0,selfdmg:-19}, //lvl 5
+	'Heal':{type:'holy',strong:'science',dmg:0,hit:1,crit:0,selfdmg:{dmgFrom: -30, dmgTo: -15}}, //lvl 5
 	'Rape':{type:'holy',strong:'mystic',dmg:20,hit:0.4,crit:0.2,selfdmg:-8}, //lvl 20
 	'Throw Bible':{type:'holy',strong:'mystic',dmg:30,hit:0.5,crit:0.2,selfdmg:-5}, //lvl 15
 	
@@ -104,7 +105,7 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 					db.player.find({username:data.username},function(err,res){
 						//res.length == 1
 						var username = res[0].username; //take username of logged in player from db
-						opponentInit(socket);
+						//opponentInit(socket);
 						socket.id = username; //set id of socket from logged in player to his username
 						res[0].socket = socket; //
 						PLAYER_LIST[username] = res[0];
@@ -250,7 +251,8 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 	});
 	//DISCONNECT
 	socket.on('disconnect',function(){
-console.log('Connected clients:', numClients);
+		console.log('Connected clients:', numClients);
+		//1. Kampf aufgeben (verlieren), Kampf löschen
 		for(var i in FIGHT_LIST){
 			if(socket.id == FIGHT_LIST[i].challengerUsername){
 				data = {
@@ -272,6 +274,7 @@ console.log('Connected clients:', numClients);
 				delete FIGHT_LIST[i];
 			}
 		}
+		//2. Daten des ausgeloggten Spielers aus der Spielerliste in die DB schieben, Spieler aus Liste löschen
 		try{
 			var exp = PLAYER_LIST[socket.id].exp;
 			var playerlvl = 1;
@@ -289,12 +292,13 @@ console.log('Connected clients:', numClients);
 				atk3:PLAYER_LIST[socket.id].atk3,
 				type:PLAYER_LIST[socket.id].type,
 				/*elo:PLAYER_LIST[socket.id].elo,*/ //redundant
-				}}); //EXP IN DB SPEICHERN!
+				}});
 			delete PLAYER_LIST[socket.id];
 			numClients--;
 		} catch(err){
 			
 		}
+		//3. Allen mitteilen, dass man nicht mehr anzutreffen ist
 		busy({username:socket.id});
 	});
 	//SIGNUP
@@ -317,13 +321,14 @@ console.log('Connected clients:', numClients);
 									db.player.find({username:data.username},function(err,res){
 										//res.length == 1
 										var username = res[0].username; //take username of logged in player from db
-										ready({username:username}); //shows up in opponent list of the otherguild
-										opponentInit(socket);
+						
+										//opponentInit(socket);
 										socket.id = username; //set id of socket from logged in player to his username
 										res[0].socket = socket; //
 										PLAYER_LIST[username] = res[0];
 										console.log(PLAYER_LIST);
 										socket.emit('getMyData', {username:username,lvl:res[0].lvl,guild:res[0].guild,guildmaster:res[0].guildmaster,exp:res[0].exp,infight:res[0].infight});
+										ready({username:username}); //shows up in opponent list of the otherguild
 									});
 									socket.emit('signInResponse', {success:true});
 								}
@@ -361,14 +366,64 @@ console.log('Connected clients:', numClients);
 		}
 	});
 	//atack authentification
+	socket.on('atk1', function(){
+		if(PLAYER_LIST[socket.id] != undefined){ //spieler muss on sein zum angreifen
+	console.log(PLAYER_LIST[socket.id].atk1);
+	console.log(ATTACKS[PLAYER_LIST[socket.id].atk1]);
+			var atkDmg;
+			if(ATTACKS[PLAYER_LIST[socket.id].atk1].dmg.dmgFrom != undefined){
+				var atkDmgFrom = ATTACKS[PLAYER_LIST[socket.id].atk1].dmg.dmgFrom;
+				var atkDmgTo = ATTACKS[PLAYER_LIST[socket.id].atk1].dmg.dmgTo;
+				var atkDmgRange = atkDmgTo - atkDmgFrom +1;
+				console.log('dmgfrom: '+atkDmgFrom+'  dmgto: '+atkDmgTo+'  dmgrange: '+atkDmgRange);
+				atkDmg = atkDmgFrom + Math.random()*atkDmgRange;
+			} else {
+				atkDmg = ATTACKS[PLAYER_LIST[socket.id].atk1].dmg;
+			}
+			var atkCrit = ATTACKS[PLAYER_LIST[socket.id].atk1].crit;
+			var atkSelfDmg;
+			if(ATTACKS[PLAYER_LIST[socket.id].atk1].selfdmg.dmgFrom != undefined){
+				var atkSelfDmgFrom = ATTACKS[PLAYER_LIST[socket.id].atk1].selfdmg.dmgFrom;
+				var atkSelfDmgTo = ATTACKS[PLAYER_LIST[socket.id].atk1].selfdmg.dmgTo;
+				var atkSelfDmgRange = atkSelfDmgTo - atkSelfDmgFrom + 1;
+				console.log('selfdmgfrom: '+atkSelfDmgFrom+'  selfdmgto: '+atkSelfDmgTo+'  selfdmgrange: '+atkSelfDmgRange);
+				atkSelfDmg = atkSelfDmgFrom + Math.random()*atkSelfDmgRange;
+			} else {
+				atkSelfDmg = ATTACKS[PLAYER_LIST[socket.id].atk1].selfdmg;
+			}			var atkType = ATTACKS[PLAYER_LIST[socket.id].atk1].type;
+			var atkStrong = ATTACKS[PLAYER_LIST[socket.id].atk1].strong;
+			var atkHit = ATTACKS[PLAYER_LIST[socket.id].atk1].hit;
+			
+			console.log('IN ATK 1 atkStrong: '+atkStrong);
+			
+			schadenAnrichten({atkName:PLAYER_LIST[socket.id].atk1,atkDmg:atkDmg,atkSelfDmg:atkSelfDmg,atkCrit:atkCrit,atkHit:atkHit,atkType:atkType,atkStrong:atkStrong,fightId:PLAYER_LIST[socket.id].infight,socket:socket});
+		}
+	});
 	socket.on('atk2', function(){
 			if(PLAYER_LIST[socket.id] != undefined){ //spieler muss on sein zum angreifen
 	console.log(PLAYER_LIST[socket.id].atk2);
 	console.log(ATTACKS[PLAYER_LIST[socket.id].atk2]);
-			atkDmg = ATTACKS[PLAYER_LIST[socket.id].atk2].dmg;
+						var atkDmg;
+			if(ATTACKS[PLAYER_LIST[socket.id].atk2].dmg.dmgFrom != undefined){
+				var atkDmgFrom = ATTACKS[PLAYER_LIST[socket.id].atk2].dmg.dmgFrom;
+				var atkDmgTo = ATTACKS[PLAYER_LIST[socket.id].atk2].dmg.dmgTo;
+				var atkDmgRange = atkDmgTo - atkDmgFrom + 1;
+				console.log('dmgfrom: '+atkDmgFrom+'  dmgto: '+atkDmgTo+'  dmgrange: '+atkDmgRange);
+				atkDmg = atkDmgFrom + Math.random()*atkDmgRange;
+			} else {
+				atkDmg = ATTACKS[PLAYER_LIST[socket.id].atk2].dmg;
+			}
 			atkCrit = ATTACKS[PLAYER_LIST[socket.id].atk2].crit;
-			atkSelfDmg = ATTACKS[PLAYER_LIST[socket.id].atk2].selfdmg;
-			atkType = ATTACKS[PLAYER_LIST[socket.id].atk2].type;
+			var atkSelfDmg;
+			if(ATTACKS[PLAYER_LIST[socket.id].atk2].selfdmg.dmgFrom != undefined){
+				var atkSelfDmgFrom = ATTACKS[PLAYER_LIST[socket.id].atk2].selfdmg.dmgFrom;
+				var atkSelfDmgTo = ATTACKS[PLAYER_LIST[socket.id].atk2].selfdmg.dmgTo;
+				var atkSelfDmgRange = atkSelfDmgTo - atkSelfDmgFrom + 1;
+				console.log('selfdmgfrom: '+atkSelfDmgFrom+'  selfdmgto: '+atkSelfDmgTo+'  selfdmgrange: '+atkSelfDmgRange);
+				atkSelfDmg = atkSelfDmgFrom + Math.random()*atkSelfDmgRange;
+			} else {
+				atkSelfDmg = ATTACKS[PLAYER_LIST[socket.id].atk2].selfdmg;
+			}			atkType = ATTACKS[PLAYER_LIST[socket.id].atk2].type;
 			atkStrong = ATTACKS[PLAYER_LIST[socket.id].atk2].strong;
 			atkHit = ATTACKS[PLAYER_LIST[socket.id].atk2].hit;
 						console.log('IN ATK 2 atkStrong: '+atkStrong);
@@ -380,33 +435,36 @@ console.log('Connected clients:', numClients);
 		if(PLAYER_LIST[socket.id] != undefined){ //spieler muss on sein zum angreifen
 	console.log(PLAYER_LIST[socket.id].atk3);
 	console.log(ATTACKS[PLAYER_LIST[socket.id].atk3]);
-			atkDmg = ATTACKS[PLAYER_LIST[socket.id].atk3].dmg;
-			atkCrit = ATTACKS[PLAYER_LIST[socket.id].atk3].crit;
-			atkSelfDmg = ATTACKS[PLAYER_LIST[socket.id].atk3].selfdmg;
-			atkType = ATTACKS[PLAYER_LIST[socket.id].atk3].type;
-			atkStrong = ATTACKS[PLAYER_LIST[socket.id].atk3].strong;
-			atkHit = ATTACKS[PLAYER_LIST[socket.id].atk3].hit;
+			var atkDmg;
+			if(ATTACKS[PLAYER_LIST[socket.id].atk3].dmg.dmgFrom != undefined){
+				var atkDmgFrom = ATTACKS[PLAYER_LIST[socket.id].atk3].dmg.dmgFrom;
+				var atkDmgTo = ATTACKS[PLAYER_LIST[socket.id].atk3].dmg.dmgTo;
+				var atkDmgRange = atkDmgTo - atkDmgFrom + 1;
+				console.log('dmgfrom: '+atkDmgFrom+'  dmgto: '+atkDmgTo+'  dmgrange: '+atkDmgRange);
+				atkDmg = atkDmgFrom + Math.random()*atkDmgRange;
+			} else {
+				atkDmg = ATTACKS[PLAYER_LIST[socket.id].atk3].dmg;
+			}
+			var atkCrit = ATTACKS[PLAYER_LIST[socket.id].atk3].crit;
+			var atkSelfDmg;
+			if(ATTACKS[PLAYER_LIST[socket.id].atk3].selfdmg.dmgFrom != undefined){
+				var atkSelfDmgFrom = ATTACKS[PLAYER_LIST[socket.id].atk3].selfdmg.dmgFrom;
+				var atkSelfDmgTo = ATTACKS[PLAYER_LIST[socket.id].atk3].selfdmg.dmgTo;
+				var atkSelfDmgRange = atkSelfDmgTo - atkSelfDmgFrom + 1;
+				console.log('selfdmgfrom: '+atkSelfDmgFrom+'  selfdmgto: '+atkSelfDmgTo+'  selfdmgrange: '+atkSelfDmgRange);
+				atkSelfDmg = atkSelfDmgFrom + Math.random()*atkSelfDmgRange;
+			} else {
+				atkSelfDmg = ATTACKS[PLAYER_LIST[socket.id].atk3].selfdmg;
+			}
+			var atkType = ATTACKS[PLAYER_LIST[socket.id].atk3].type;
+			var atkStrong = ATTACKS[PLAYER_LIST[socket.id].atk3].strong;
+			var atkHit = ATTACKS[PLAYER_LIST[socket.id].atk3].hit;
 						console.log('IN ATK 3 atkStrong: '+atkStrong);
 
 			schadenAnrichten({atkName:PLAYER_LIST[socket.id].atk3,atkDmg:atkDmg,atkSelfDmg:atkSelfDmg,atkCrit:atkCrit,atkHit:atkHit,atkType:atkType,atkStrong:atkStrong,fightId:PLAYER_LIST[socket.id].infight,socket:socket});
 		}
 	});
-	socket.on('atk1', function(){
-		if(PLAYER_LIST[socket.id] != undefined){ //spieler muss on sein zum angreifen
-	console.log(PLAYER_LIST[socket.id].atk1);
-	console.log(ATTACKS[PLAYER_LIST[socket.id].atk1]);
-			atkDmg = ATTACKS[PLAYER_LIST[socket.id].atk1].dmg;
-			atkCrit = ATTACKS[PLAYER_LIST[socket.id].atk1].crit;
-			atkSelfDmg = ATTACKS[PLAYER_LIST[socket.id].atk1].selfdmg;
-			atkType = ATTACKS[PLAYER_LIST[socket.id].atk1].type;
-			atkStrong = ATTACKS[PLAYER_LIST[socket.id].atk1].strong;
-			atkHit = ATTACKS[PLAYER_LIST[socket.id].atk1].hit;
-			
-			console.log('IN ATK 1 atkStrong: '+atkStrong);
-			
-			schadenAnrichten({atkName:PLAYER_LIST[socket.id].atk1,atkDmg:atkDmg,atkSelfDmg:atkSelfDmg,atkCrit:atkCrit,atkHit:atkHit,atkType:atkType,atkStrong:atkStrong,fightId:PLAYER_LIST[socket.id].infight,socket:socket});
-		}
-	});
+
 	
 	//GUILD
 	socket.on('guildCreate', function(data){
@@ -527,7 +585,7 @@ var aufgeben = function(data){
 		PLAYER_LIST[data.enemyUsername].socket.emit('getMyData', {exp:PLAYER_LIST[data.username].exp});
 		PLAYER_LIST[data.enemyUsername].infight = false;
 		PLAYER_LIST[data.enemyUsername].socket.emit('endFight', {fightId: data.fightId});
-		opponentInit(PLAYER_LIST[data.enemyUsername].socket);
+		//opponentInit(PLAYER_LIST[data.enemyUsername].socket);
 	if(!data.disconnect){
 		ready({username:data.enemyUsername});
 	}
@@ -539,7 +597,7 @@ var aufgeben = function(data){
 		PLAYER_LIST[data.username].socket.emit('addToChat',{message:'You gave up!',color:'info'});
 		PLAYER_LIST[data.username].infight = false;
 		PLAYER_LIST[data.username].socket.emit('endFight', {fightId: data.fightId});
-		opponentInit(PLAYER_LIST[data.username].socket);
+		//opponentInit(PLAYER_LIST[data.username].socket);
 		ready({username:data.username});
 	}catch(err){
 		
@@ -566,13 +624,21 @@ var eloAnpassen = function(data){
 				db.player.update({username:data.B}, {$set: {
 					elo:ret.R_B,
 				}}); 
-				PLAYER_LIST[data.A].socket.emit('addToChat', {message:'You gain '+  ret.R_Delta+' elo',color:'info'});
-				PLAYER_LIST[data.B].socket.emit('addToChat', {message:'You gain '+ -ret.R_Delta+' elo',color:'info'});
-				PLAYER_LIST[data.A].elo = ret.R_A;
-				PLAYER_LIST[data.B].elo = ret.R_B;
-				ready({username:data.A,elo:ret.R_A});
-				ready({username:data.B,elo:ret.R_B});
-			});
+				try{
+					PLAYER_LIST[data.A].socket.emit('addToChat', {message:'You gain '+  ret.R_Delta+' elo',color:'info'});
+					PLAYER_LIST[data.A].elo = ret.R_A;
+					ready({username:data.A,elo:ret.R_A});
+				} catch(err){
+					
+				}
+				try{
+					PLAYER_LIST[data.B].socket.emit('addToChat', {message:'You gain '+ -ret.R_Delta+' elo',color:'info'});
+					PLAYER_LIST[data.B].elo = ret.R_B;
+					ready({username:data.B,elo:ret.R_B});
+				} catch(err){
+					
+				}
+			}); 
 		});
 	}catch(err){
 		console.log('catch!');
@@ -592,7 +658,7 @@ var schadenAnrichten = function(data){
 		var hitMult = 1;
 		if(Math.random() < 1-data.atkHit){
 			hitMult = 0;
-			socket.emit('addToChat',{message:'MISS1!!1LOLOOOLOL', color:'info'});
+			//socket.emit('addToChat',{message:'MISS!', color:'info'});
 			socket.emit('eventMessage', {message: 'MISS'});
 		} else {
 			if(Math.random() < data.atkCrit){
@@ -601,7 +667,11 @@ var schadenAnrichten = function(data){
 		}//END OF MISS
 			data.atkDmg *= critMult;
 			data.atkDmg *= hitMult;
-
+			data.atkDmg = Math.round(data.atkDmg); //DAMAGE wird gerundet... hübscher so
+			console.log(data.atkDmg);
+			data.atkSelfDmg = Math.round(data.atkSelfDmg); //Heal wird gerundet.. bzw selfdmg
+			console.log(data.atkSelfDmg);
+			
 		if(FIGHT_LIST[fightId].opponentUsername === socket.id){ //opponent - thats me: opponent attacks
 			nameOfTheOther = FIGHT_LIST[fightId].challengerUsername;
 			typeOfOther = PLAYER_LIST[nameOfTheOther].type;
@@ -611,17 +681,36 @@ var schadenAnrichten = function(data){
 			}
 			if(typeOfOther === data.atkStrong){
 				data.atkDmg *= 1.15;
+				data.atkDmg = Math.round(data.atkDmg);
 				socket.emit('addToChat', {message:data.atkName+' was strong against '+typeOfOther+' (MULT 1.15)',color:'info'});
 				PLAYER_LIST[nameOfTheOther].socket.emit('addToChat', {message:data.atkName+' was strong against '+typeOfOther+' (MULT 1.15)',color:'info'});
 			}
+			//dmg
 			FIGHT_LIST[fightId].challengerHp -= data.atkDmg;
+			if(FIGHT_LIST[fightId].challengerHp > 100){
+				FIGHT_LIST[fightId].challengerHp = 100;
+			}
 			//selfdmg
 			FIGHT_LIST[fightId].opponentHp -= data.atkSelfDmg;
+			if(FIGHT_LIST[fightId].opponentHp > 100){
+				FIGHT_LIST[fightId].opponentHp = 100;
+			}
 			//chat info
-			socket.emit('addToChat',{message:data.atkDmg+' Damage!',color:'info'});
-			PLAYER_LIST[nameOfTheOther].socket.emit('addToChat',{message:data.atkDmg+' Damage!',color:'info'});
+			if(data.atkSelfDmg > 0){
+				socket.emit('addToChat',{message:'You hit yourself for '+data.atkSelfDmg+' damage!',color:'info'});
+				PLAYER_LIST[nameOfTheOther].socket.emit('addToChat',{message:'Your enemy hit himself for '+data.atkSelfDmg+' damage!',color:'info'});
+			} else if(data.atkSelfDmg < 0) {
+				socket.emit('addToChat',{message:-data.atkSelfDmg+' heal!',color:'info'});
+				PLAYER_LIST[nameOfTheOther].socket.emit('addToChat',{message:'Your enemy healed himself for '+-data.atkSelfDmg+'!',color:'info'});
+			}
+			if(data.atkDmg > 0){
+				socket.emit('addToChat',{message:data.atkDmg+' damage!',color:'info'});
+				PLAYER_LIST[nameOfTheOther].socket.emit('addToChat',{message:'You took '+data.atkDmg+' damage!',color:'info'});
+			} else if(data.atkDmg < 0){
+				socket.emit('addToChat',{message:'You healed your enemy for '+-data.atkDmg+'!',color:'info'});
+				PLAYER_LIST[nameOfTheOther].socket.emit('addToChat',{message:'Your enemy healed you for '+-data.atkDmg+'!',color:'info'});
+			}
 			
-
 			newHp = FIGHT_LIST[fightId].challengerHp;
 			newHpMe = FIGHT_LIST[fightId].opponentHp;
 		} else { //challenger attacks
@@ -632,16 +721,37 @@ var schadenAnrichten = function(data){
 				PLAYER_LIST[nameOfTheOther].socket.emit('eventMessage', {message:'CRIT (MULT 1.5)'});
 			}
 			if(typeOfOther === data.atkStrong){
-				data.atkDmg *= 1.5;
+				data.atkDmg *= 1.15;
+				data.atkDmg = Math.round(data.atkDmg);
 				socket.emit('addToChat', {message:data.atkName+' was strong against '+typeOfOther,color:'info'});
 				PLAYER_LIST[nameOfTheOther].socket.emit('addToChat', {message:data.atkName+' was strong against '+typeOfOther,color:'info'});
 			}
+			//dmg
 			FIGHT_LIST[fightId].opponentHp -= data.atkDmg;
+			if(FIGHT_LIST[fightId].opponentHp > 100){
+				FIGHT_LIST[fightId].opponentHp = 100;
+			}
 			//selfdmg
 			FIGHT_LIST[fightId].challengerHp -= data.atkSelfDmg;
+			if(FIGHT_LIST[fightId].challengerHp > 100){
+				FIGHT_LIST[fightId].challengerHp = 100;
+			}
 			//chat info
-			socket.emit('addToChat',{message:data.atkDmg+' Damage!',color:'info'});
-			PLAYER_LIST[nameOfTheOther].socket.emit('addToChat',{message:data.atkDmg+' Damage!',color:'info'});
+			if(data.atkSelfDmg > 0){
+				socket.emit('addToChat',{message:'You hit yourself for '+data.atkSelfDmg+' damage!',color:'info'});
+				PLAYER_LIST[nameOfTheOther].socket.emit('addToChat',{message:'Your enemy hit himself for '+data.atkSelfDmg+' damage!',color:'info'});
+			} else if(data.atkSelfDmg < 0) {
+				socket.emit('addToChat',{message:-data.atkSelfDmg+' heal!',color:'info'});
+				PLAYER_LIST[nameOfTheOther].socket.emit('addToChat',{message:'Your enemy healed himself for '+-data.atkSelfDmg+'!',color:'info'});
+			}
+			if(data.atkDmg > 0){
+				socket.emit('addToChat',{message:data.atkDmg+' damage!',color:'info'});
+				PLAYER_LIST[nameOfTheOther].socket.emit('addToChat',{message:'You took '+data.atkDmg+' damage!',color:'info'});
+			} else if(data.atkDmg < 0){
+				socket.emit('addToChat',{message:'You healed your enemy for '+-data.atkDmg+'!',color:'info'});
+				PLAYER_LIST[nameOfTheOther].socket.emit('addToChat',{message:'Your enemy healed you for '+-data.atkDmg+'!',color:'info'});
+			}
+			
 
 			newHp = FIGHT_LIST[fightId].opponentHp;
 			newHpMe = FIGHT_LIST[fightId].challengerHp;
@@ -729,23 +839,23 @@ var isUsernameTaken = function(data,cb){
 }
 //show everybody he came on / out of fight
 function ready(data){
-	try{
-		data.elo = PLAYER_LIST[data.username].elo;
-		for(var key in PLAYER_LIST){
-			if(PLAYER_LIST[key].username != data.username){
-				PLAYER_LIST[key].socket.emit('ready', data);
-			}
-		}
-	}catch(err){
-		console.log(err);
-	}
+	READY_LIST[data.username] = PLAYER_LIST[data.username].elo;
+	sendNewOpponentList();
 }
 //show everybody he went off / went into fight
 function busy(data){
+	delete READY_LIST[data.username];
+	sendNewOpponentList();
+}
+function sendNewOpponentList(){
 	for(var key in PLAYER_LIST){
-		if(PLAYER_LIST[key].username != data.username){
-			PLAYER_LIST[key].socket.emit('busy', data);
+		var string = '';
+		for(var keyInner in READY_LIST){
+			if(key != keyInner){//all players; allReadyPlayers
+				string+='<div id="'+keyInner+'" class="possibleOpponent " style="border:1px dashed black;margin:0px;padding:0px">'+keyInner+' - elo: '+READY_LIST[keyInner]+'</div><br/>';
+			}
 		}
+		PLAYER_LIST[key].socket.emit('currentOpponentList', {string:string});
 	}
 }
 	
