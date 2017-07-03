@@ -10,6 +10,12 @@ function shoot(){
 		
 		setTimeout(function() { $('.projectile').addClass('fireball');}, 200);
 		setTimeout(function() { $('.fireball').removeClass('projectile');}, 200);
+		
+
+        setTimeout(function() { $('.fireball').css('filter','hue-rotate('+90*selfType+'deg)');}, 200);
+
+		
+		setTimeout(function() { $('.fireball').css("transform","scaleX(-1)"); }, 200);
 		setTimeout(function() { $('.fireball').addClass('smoke'); }, 850);
         setTimeout(function() { $('.smoke').removeClass('fireball'); }, 850);
 		setTimeout(function() { $('.smoke').addClass('projectile'); }, 1200);
@@ -34,11 +40,17 @@ function getShot(){
 		
 		
 		setTimeout(function() { $('.projectile').addClass('fireball');}, 200);
+		
+	
+		setTimeout(function() { $('.fireball').css('filter','hue-rotate('+90*oppoType+'deg)');}, 200);
+
+		//setTimeout(function() { $('.fireballOpponent').css('filter','hue-rotate(180deg)');}, 200);
+		
 		setTimeout(function() { $('.fireball').removeClass('projectile');}, 200);
 		setTimeout(function() { $('.fireball').css("transform","scaleX(1)"); }, 200);
 		setTimeout(function() { $('.fireball').css("animation","fireballOpponentAnim steps(6) 0.7s infinite"); }, 200);
 		setTimeout(function() { $('.fireball').css("animation",""); }, 850);
-		setTimeout(function() { $('.fireball').css("transform",""); }, 850);
+		setTimeout(function() { $('.fireballt').css("transform",""); }, 850);
 			
 		setTimeout(function() { $('.fireball').addClass('smoke'); }, 850);
         setTimeout(function() { $('.smoke').removeClass('fireball'); }, 850);
@@ -148,26 +160,60 @@ $(document).on('keydown', function(e) {
 		getSlashed();
     }
 	if (e.keyCode === 72) { // 72 is the letter H on the keyboard
+	
+		setTimeout(function() { $('.projectile').addClass('heal');}, 200);	
+       // setTimeout(function() { $('.fireball').css('filter','hue-rotate('+90*selfType+'deg)');}, 200);		
+		setTimeout(function() { $('.brojectile').addClass('flash'); }, 1500);
+		//setTimeout(function() { $('.heal').addClass('smoke'); }, 850);
+        setTimeout(function() { $('.projectile').removeClass('heal'); }, 3000);
+		setTimeout(function() { $('.brojectile').removeClass('flash'); }, 2500);
+		//setTimeout(function() { $('.smoke').addClass('projectile'); }, 1200);
+        //setTimeout(function() { $('.projectile').removeClass('smoke'); }, 1200);
 
-			
-loose();
     }
 	
 	
 	
 });
 function loadFighter(fighter, opponent){
+	
+	
+var  ratio =($( window ).width()*0.8)/1600;
+ $('.fightWindow').css("zoom",ratio);
+
 
 	var you = fighter;
 	var other  = opponent;
-	$('.fightWindow').show();
+$('.fightWindow').show();
 $('.idle').addClass(you+'Idle');
 $('.'+you+'Idle').removeClass('idle');
-$('.opponentIdle').addClass(other+'Idle');
-$('.'+other+'Idle').removeClass('opponentIdle');
+$('.opponentIdle').addClass(other+'IdleOpponent');
+$('.'+other+'IdleOpponent').removeClass('opponentIdle');
+
+window.oppoType = 0;	
+window.selfType = 0;
+
+if(you=="robo"){
+window.selfType = 2;	
+}
+if(you=="girl"){
+window.selfType = 1;
+}
+if(you=="santa"){
+window.selfType = 0;
+}
+
+if(other=="robo"){
+window.oppoType = 2;	
+}
+if(other=="girl"){
+window.oppoType = 1;
+}
+if(other=="santa"){
+window.oppoType = 0;
+}
 
 
-	
 window.id = $('.'+you+'Idle');
 window.idR = ''+you+'Idle';
 window.tro = $('.'+you+'Throw');
@@ -177,14 +223,14 @@ window.deadR = ''+you+'Dead';
 window.atk = $('.'+you+'Attack');
 window.atkR = ''+you+'Attack';
 
-window.idO = $('.'+other+'Idle');
-window.idOR = ''+other+'Idle';
-window.troO = $('.'+other+'Throw');
-window.troOR = ''+other+'Throw';
-window.deadO = $('.'+other+'Dead');
-window.deadOR = ''+other+'Dead';
-window.atkO = $('.'+other+'Attack');
-window.atkOR = ''+other+'Attack';
+window.idO = $('.'+other+'IdleOpponent');
+window.idOR = ''+other+'IdleOpponent';
+window.troO = $('.'+other+'ThrowOpponent');
+window.troOR = ''+other+'ThrowOpponent';
+window.deadO = $('.'+other+'DeadOpponent');
+window.deadOR = ''+other+'DeadOpponent';
+window.atkO = $('.'+other+'AttackOpponent');
+window.atkOR = ''+other+'AttackOpponent';
 
 
 	

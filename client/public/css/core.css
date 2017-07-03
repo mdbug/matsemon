@@ -1,0 +1,219 @@
+/*   fonts  copied  from prev version*/
+
+@font-face {
+	font-family: matsemonHeaderFont;
+	src: url("/client/endor.ttf") format("truetype");
+}
+@font-face {
+	font-family: matsemonFont;
+	src: url("/client/vtksdura.ttf") format("truetype");
+}
+#headerDiv, #opponentDiv, #chooseDiv, #fightDiv, #signDiv, {
+	font-family: ;
+}
+h1, ul, .matsemonHeaderFont {
+	font-family: matsemonHeaderFont;
+	font-weight:bold;
+}
+	
+	
+html,body{
+		background-image: url('/client/img/blackwhite.jpeg');
+		background-size: cover;
+		background-position: center top;
+		background-attachment: fixed;
+		background-repeat: no repeat;
+	}
+	
+	
+.opponentDivList{
+	cursor: url('../../client/img/sword7.png'), auto;
+	background-color: rgba(255,255,255,0.7);
+}
+
+#opponentDiv{
+	display:none
+	width:80%;
+	margin:0 10%;
+}
+
+
+#bestDiv {
+		color:;
+		background-image: url('/client/img/paper.jpg');
+		background-size:;
+		background-position:;
+		background-attachment:;
+		background-repeat:;
+	}
+	
+	
+/* NavigationBAR */
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+	
+}
+
+li {
+    float: left;
+}
+
+li a, .dropbtn {
+    display: inline-block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+li a:hover, .dropdown:hover .dropbtn {
+    background-color: red;
+}
+
+li.dropdown {
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+}
+
+.dropdown-content a:hover {background-color: #f1f1f1}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Sign In*/
+
+.signDiv input {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    border: none;
+    border-bottom: 2px solid red;
+}
+
+/*general buttons*/
+
+button {
+  display: inline-block;
+  padding: 15px 25px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #fff;
+  background-color: #333;
+  border: none;
+  box-shadow: 2px 3px #999;
+}
+
+button:hover {background-color: red}
+button:active {
+  background-color: red;
+  box-shadow: 4px 5px #666;
+  transform: translate(4px);
+}
+
+/* Choose Type*/
+#chooseTypeDiv{
+	display:none;
+}
+
+#chooseDiv{
+	display:none;
+	width:100%;
+}
+.popUp{
+	width:80;
+	margin:0 10%;
+	
+}
+
+/*  chat Window*/
+
+#chatDiv{
+	display:none;
+	width:80%;
+	margin: 0 10%;
+}
+
+#chatDivText{ 
+	height:100px;
+	overflow-y:scroll;
+	background:#282828;
+	border:0px solid black;"
+}
+
+#chatDivForm{
+}
+
+#chatDivFormInput{
+	width:100%;
+	
+}
+
+#outsideExpBar{
+	background-color:#222;
+	width:100%;
+	border:1px solid black;
+	margin:0;
+	padding:0;
+}
+#expBar{
+	padding:0;
+	margin:0;
+	background-color:orange;
+	height:6px;
+	width:1%;
+	display:inline-block;
+	border:0px solid black;
+}
+#chatDivInfo{
+	background-color:white;
+	font-size:1em;
+	border:1px solid black;
+}
+
+
+/* Fight Window*/
+
+
+#fightDiv{
+	display:none;
+	width:80%;
+	margin:0 10%;
+}
+#eventMessage{
+	display:none;
+	position:relative;
+	top:100px;
+	height:200px;
+	width:500px;
+	border:1px solid red;
+}
+
+.hpBar{
+	width:80%
+	margin:0 10%;
+}
+

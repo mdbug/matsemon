@@ -1,0 +1,278 @@
+body{
+	
+}
+.fightWindow{
+	display:flex;
+	justify-content: space-around;
+
+}
+.spaceBetween{
+	width:200px;
+	
+}
+.fighter { 
+	display:flex;
+	justify-content: flex-start;
+    width:500px; height:500px;
+}
+.opponent {
+
+	display:block;
+	justify-content: flex-end;
+    width:500px; height:500px;
+}
+.stats{
+	display:flex;
+	padding-bottom:2%;
+	padding-top:2%;
+	width:100%;
+	height:20%;
+	max-height:100px;
+}
+.statsBetween{
+		flex:1;
+		
+}
+.hp{
+	flex:2;
+	display:flex;
+	background-color:red;	
+
+}
+.opponentHp{
+	flex:2;
+	display:flex;	
+	background-color:red;	
+}
+
+
+.hpHave{
+	height:100%;
+	width:100%;
+	background-color:green;
+}
+
+.opponentHpHave{
+	height:100%;
+	width:100%;
+	background-color:green;
+}
+
+
+.idle { 
+    width:232px; height:439px; /* exactly the size of an image in our sprite */
+    background-image:url('../images/fighter/ninja/idle.png'); 
+	animation: idleAnim steps(10) 0.5s infinite; 
+}
+
+.attack { 
+	position: absolute; 
+	width:536px; height:495px; /* exactly the size of an image in our sprite */
+	background-image:url('../images/fighter/ninja/slash.png');
+    animation: attack steps(10) 0.7s infinite; 
+
+}
+
+
+
+.throw { 
+
+	width:377px; height:451px; /* exactly the size of an image in our sprite */
+	background-image:url('../images/fighter/ninja/throw.png');
+    animation: throwAnim steps(10) 0.5s infinite; 
+
+
+
+.dead { 
+	
+	width:482px; height:498px; /* exactly the size of an image in our sprite */
+	background-image:url('../images/fighter/ninja/ninjadead.png');
+    animation: deadAnim steps(10) 0.5s infinite; 
+
+}
+
+.santaIdle { 
+	
+    width:934px; height:641px; /* exactly the size of an image in our sprite */
+    background-image:url('../images/fighter/santa/santa2.png'); 
+	animation: santaIdleAnim steps(16) 0.5s infinite; 
+}
+@keyframes santaIdleAnim {
+    from { background-position:0px 0px; }
+    to { background-position:-8000px 0px; }
+}
+
+.santaAttack { 
+	position: absolute; 
+	width:536px; height:495px; /* exactly the size of an image in our sprite */
+	background-image:url('../images/fighter/ninja/slash.png');
+    animation: attack steps(10) 0.7s infinite; 
+
+}
+
+
+
+.santaThrow { 
+
+	width:377px; height:451px; /* exactly the size of an image in our sprite */
+	background-image:url('../images/fighter/ninja/throw.png');
+    animation: throwAnim steps(10) 0.5s infinite; 
+
+}
+
+.santaDead { 
+	
+	width:482px; height:498px; /* exactly the size of an image in our sprite */
+	background-image:url('../images/fighter/ninja/ninjadead.png');
+    animation: deadAnim steps(10) 0.5s infinite; 
+
+}
+
+
+.opponentIdle { 
+	
+    width:232px; height:439px; /* exactly the size of an image in our sprite */
+    background-image:url('../images/fighter/santa/santa.png'); 
+	animation: idleAnim steps(16) 0.5s infinite; 
+}
+
+.attackOpponent { 
+	position: absolute; 
+	width:536px; height:495px; /* exactly the size of an image in our sprite */
+	
+	background-image:url('../images/fighter/ninja/slash.png');
+    animation: attackOpponent steps(10) 0.7s infinite; 
+
+}
+
+
+.throwOpponent { 
+	
+	width:377px; height:451px; /* exactly the size of an image in our sprite */
+	background-image:url('../images/fighter/ninja/throw.png');
+    animation: throwAnim steps(10) 0.5s infinite; 
+
+}
+
+.deadOpponent { 
+	
+	width:482px; height:498px; /* exactly the size of an image in our sprite */
+	background-image:url('../images/fighter/ninja/ninjadead.png');
+    animation: deadAnim steps(10) 0.5s infinite; 
+
+}
+
+.projectile{
+	position: absolute;
+	bottom:500px;
+	width:512px; height:197px;
+	
+}
+.fireball{
+	position: absolute;
+	left:20%;
+    top:30%;
+	transform: scaleX(-1);
+	width:512px; height:197px;
+	background-image:url('../images/attack/fireball/fireball.png');
+	animation: fireballAnim steps(6) 0.72s infinite; 
+
+	
+}
+
+.smoke{
+	position: absolute;
+	left:55%;
+    top:25%;
+	z-index:10;
+	width:512px; height:512px;
+	background-image:url('../images/attack/fireball/smoke.png');
+	animation: smokeAnim steps(10) 0.5s infinite; 
+
+	
+}
+
+.blood{
+	position: absolute;
+	left:55%;
+    top:25%;
+	z-index:11;
+	width:512px; height:512px;
+	background-image:url('../images/attack/slash/blood.png');
+	animation: bloodAnim steps(6) 0.3s infinite; 
+
+	
+}
+
+
+
+@keyframes deadAnim {
+    from { background-position:0px 0px;    }
+    to { background-position:-4910px 0px;   }
+	
+}
+
+@keyframes attack {
+    from { background-position:0px 0px; left:10%;   }
+    to { background-position:-5360px 0px; left:75%;  }
+	
+}
+@keyframes attackOpponent {
+    from { background-position:0px 0px; right:10%;   }
+    to { background-position:-5360px 0px; right:75%;  }
+	
+}
+
+@keyframes throwAnim {
+    from { background-position:0px 0px;    }
+    to { background-position:-3770px 0px;   }
+	
+}
+
+@keyframes smokeAnim {
+    from { background-position:0px 0px;    }
+    to { background-position:-5210px 0px;   }
+	
+}
+
+@keyframes smokeOpponentAnim {
+    from { background-position:0px 0px;    }
+    to { background-position:-5210px 0px;   }
+	
+}
+
+@keyframes bloodAnim {
+    from { background-position:0px 0px;    }
+    to { background-position:-3072px 0px;   }
+	
+}
+
+@keyframes fireballAnim {
+	
+	
+	from { background-position:0px 0px;  left: 10%;  } 
+	 to { background-position:-3072px 0px;  left: 55%; }
+}
+
+@keyframes fireballOpponentAnim {
+	from { background-position:0px 0px;  left: 55%;  } 
+	 to { background-position:-3072px 0px;  left: 10%; }
+}
+
+@keyframes idleAnim {
+    from { background-position:0px 0px; }
+    to { background-position:-2320px 0px; }
+}
+
+
+
+
+
+
+
+
+
+
+
+	
+    
