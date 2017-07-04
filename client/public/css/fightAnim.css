@@ -594,26 +594,47 @@
 	position: absolute;
 	left:15%;
     top:30%;
+	z-index:9;
 	transform: scaleX(-1);
 	width:509px; height:441px;
 	background-image:url('../images/attack/heal/hog.png'); no-repeat center fixed; 
-	animation: healAnim steps(10) 3.0s infinite; 
+
 
 	
 }
 @keyframes healAnim {
 
 	0% {top:-40%;  left: 30%;  } 
-	40% { top:15%;  left: 45%; }
-	50% { top:20%;  left: 50%; }
-	60% { top:15%;  left: 45%; }
+	40% { top:-15%;  left: 45%; }
+	50% { top:-10%;  left: 48%; }
+	60% { top:-15%;  left: 45%; }
 	100% {top:-40%;  left: 30%;  } 
+}
+@keyframes healOpponentAnim {
+
+	0% {top:-40%;    left: 33%;  } 
+	40% { top:-15%;  left: 18%; }
+	50% { top:-10%;  left: 15%; }
+	60% { top:-15%;  left: 18%; }
+	100% {top:-40%;  left: 33%;  } 
 }
 
 .flash{
 	position: absolute;
-	left:60%;
-    top:25%;
+	left:62%;
+    top:0%;
+	z-index:10;
+	width:400px; height:400px;
+	background-image:url('../images/attack/heal/heal.png');
+	animation: flashAnim steps(11) 1.0s infinite; 
+
+	
+}
+
+.opponentFlash{
+	position: absolute;
+	left:0%;
+    top:0%;
 	z-index:10;
 	width:400px; height:400px;
 	background-image:url('../images/attack/heal/heal.png');

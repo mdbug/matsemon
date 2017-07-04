@@ -416,23 +416,21 @@ var ATTACKS = {
 
 			<!-- FIGHT -->
 			<div id="fightDiv" class="col-xs-12" style="display:none;">
-				<div id="eventMessage" class=" text-center" style="position:relative;top:100px;" height="200px" width="500px" style="border:1px solid red">
-					sth in here of events
-				</div>
+
 				<div class="row">
 				
 				
 				<div class="fightWindow">
 			<div class="projectile"></div>
 			<div class="brojectile"></div>
-			<div class="fighter" style="border:1px solid black">
-				<div class="idle" style="border:1px solid black"></div>
+			<div class="fighter" style="">
+				<div class="idle"></div>
 			</div>
-			<div class="spaceBetween" style="border:1px solid black">
+			<div class="spaceBetween">
 		
 			</div>
-			<div class="opponent" style="border:1px solid black">
-				<div class="opponentIdle" style="border:1px solid black"></div>
+			<div class="opponent">
+				<div class="opponentIdle"></div>
 			</div>
 		</div>
 					
@@ -583,6 +581,10 @@ var ATTACKS = {
 		'holy':'#fdff96',
 		'science':'#96ccff',
 	};
+	var atkName1;
+	var atkName2;
+	var atkNam3;
+	
 	/******************************************* VARIABLES END ************************************************/
 	/******************************************* FUNCTIONS BEGIN ******************************************************/
 	function addToChat(data, color){
@@ -725,20 +727,20 @@ console.log('message is now (/g):'+message);
 		}
 	}
 	fightDivAttacksButton1.onclick = function(){
+		controlAnim(atkName1, 'you');
 		socket.emit('atk1', {});
-		shoot();
 		//fightDivAttacks ausblenden
 		fightDivAttacks.style.visibility = 'hidden'; 
 	}
 	fightDivAttacksButton2.onclick = function(){
+		controlAnim(atkName2, 'you');
 		socket.emit('atk2', {});
-		shoot();
 		//fightDivAttacks ausblenden
 		fightDivAttacks.style.visibility = 'hidden'; 
 	}
 	fightDivAttacksButton3.onclick = function(){
+		controlAnim(atkName3, 'you');
 		socket.emit('atk3', {});
-		slash();
 		//fightDivAttacks ausblenden
 		fightDivAttacks.style.visibility = 'hidden'; 
 	}
@@ -943,7 +945,9 @@ console.log(data.opponentUsername+' agreed your challenge!'); //Nur zum debuggen
 		fightDivMyHp.style.backgroundColor = 'rgb(0,255,0)';
 		fightDivEnemyHp.style.backgroundColor = 'rgb(0,255,0)';
 		
-
+		atkName1 = data.atk1;
+		atkName2 = data.atk2;
+		atkName3 = data.atk3;
 		
 		fightDivAttacksButton1.innerHTML = data.atk1;
 		console.log(data.atk1Strong);
@@ -1002,7 +1006,9 @@ console.log(data.opponentUsername+' agreed your challenge!'); //Nur zum debuggen
 	
 	//ME TOOK DAMAGE
 	socket.on('takeDmg', function(data){
-		getShot();
+		if(typeof data.atkName !== 'undefined'){
+			controlAnim(data.atkName,'oppo');
+		}
 		if(data.myturn){
 			fightDivAttacks.style.visibility = 'visible'; //Hier wird nicht die Technik von display:none/inline-block verwendet damit sich nicht alles verschiebt während des Zugwechsels!
 		}
@@ -1066,7 +1072,7 @@ console.log(data.opponentUsername+' agreed your challenge!'); //Nur zum debuggen
 		}
 	});
 	//EVENT-MESSAGES
-	socket.on('eventMessage', function(data){
+	/*socket.on('eventMessage', function(data){
 		if(data.message == 'CRIT'){
 			containerDiv.style.background = "black";
 			setTimeout(function(){
@@ -1082,7 +1088,7 @@ console.log(data.opponentUsername+' agreed your challenge!'); //Nur zum debuggen
 			//after 2 s
 			document.getElementById('eventMessage').innerHTML = '';
 		},2000);
-	});
+	});*/
 	//ATTACK HANDLING - DAMAGE
 	socket.on('atkResponse', function(data){
 		if(data.success){

@@ -130,6 +130,41 @@ function getSlashed(){
 	
 }
 
+function getHealed(){
+	
+		setTimeout(function() { $('.projectile').addClass('heal');}, 200);	
+        setTimeout(function() { $('.heal').css("transform","scaleX(1)");}, 200);	
+        setTimeout(function() { $('.heal').css('filter','hue-rotate(0deg)');}, 200);	
+		setTimeout(function() { $('.heal').css("animation","healOpponentAnim steps(10) 3.0s infinite"); }, 200);		
+		setTimeout(function() { $('.brojectile').addClass('opponentFlash'); }, 1500);
+		//setTimeout(function() { $('.heal').addClass('smoke'); }, 850);
+		setTimeout(function() { $('.heal').css("animation",""); }, 3000);	
+        setTimeout(function() { $('.projectile').removeClass('heal'); }, 3000);
+		setTimeout(function() { $('.brojectile').removeClass('opponentFlash'); }, 2500);
+		//setTimeout(function() { $('.smoke').addClass('projectile'); }, 1200);
+        //setTimeout(function() { $('.projectile').removeClass('smoke'); }, 1200);
+		
+		
+
+}
+
+function oppoHealed(){
+	
+		setTimeout(function() { $('.projectile').addClass('heal');}, 200);	
+		setTimeout(function() { $('.heal').css("transform","scaleX(-1)");}, 200);	
+        setTimeout(function() { $('.heal').css('filter','hue-rotate(0deg)');}, 200);	
+		setTimeout(function() { $('.heal').css("animation","healAnim steps(10) 3.0s infinite"); }, 200);		
+		setTimeout(function() { $('.brojectile').addClass('flash'); }, 1500);
+		//setTimeout(function() { $('.heal').addClass('smoke'); }, 850);
+		setTimeout(function() { $('.heal').css("animation",""); }, 3000);	
+        setTimeout(function() { $('.projectile').removeClass('heal'); }, 3000);
+		setTimeout(function() { $('.brojectile').removeClass('flash'); }, 2500);
+		//setTimeout(function() { $('.smoke').addClass('projectile'); }, 1200);
+        //setTimeout(function() { $('.projectile').removeClass('smoke'); }, 1200);
+
+}
+
+
 function loose(){
 	$('.stats').hide();
 	$('.fightWindow').hide();
@@ -157,24 +192,62 @@ $(document).on('keydown', function(e) {
     }
 	
 	if (e.keyCode === 71) { // 71 is the letter G on the keyboard
-		getSlashed();
+		//getSlashed();
+		getHealed();
     }
 	if (e.keyCode === 72) { // 72 is the letter H on the keyboard
 	
-		setTimeout(function() { $('.projectile').addClass('heal');}, 200);	
-       // setTimeout(function() { $('.fireball').css('filter','hue-rotate('+90*selfType+'deg)');}, 200);		
-		setTimeout(function() { $('.brojectile').addClass('flash'); }, 1500);
-		//setTimeout(function() { $('.heal').addClass('smoke'); }, 850);
-        setTimeout(function() { $('.projectile').removeClass('heal'); }, 3000);
-		setTimeout(function() { $('.brojectile').removeClass('flash'); }, 2500);
-		//setTimeout(function() { $('.smoke').addClass('projectile'); }, 1200);
-        //setTimeout(function() { $('.projectile').removeClass('smoke'); }, 1200);
-
+	oppoHealed();
     }
 	
 	
 	
 });
+
+function controlAnim(atkName, who){
+
+	if(who=='you'){
+		if(atkName=='Death Grip'||atkName=='Rape'||atkName=='Jesus Punch'||atkName=='Ghoul Explosion'||atkName=='Darkness'||atkName=='Epsilon-Delta-Crit'||atkName=='Sumzing sumzing'){
+			slash();
+		}
+		if(atkName=='Doom'||atkName=='Throw Bible'||atkName=='Holy Pain'||atkName=='Exorcism'||atkName=='Zero-Division'||atkName=='Analysis 2'||atkName=='Exorcism'){
+			shoot();
+		}
+		if(atkName=='Soul Harvest'||atkName=='Heal'||atkName=='Summon Satan'||atkName=='Gauß'){
+			getHealed();
+		}
+		
+	}
+	if(who=='oppo'){
+		if(atkName=='Death Grip'||atkName=='Rape'||atkName=='Jesus Punch'||atkName=='Ghoul Explosion'||atkName=='Darkness'||atkName=='Epsilon-Delta-Crit'||atkName=='Sumzing sumzing'){
+			getSlashed();
+		}
+		if(atkName=='Doom'||atkName=='Throw Bible'||atkName=='Holy Pain'||atkName=='Exorcism'||atkName=='Zero-Division'||atkName=='Analysis 2'||atkName=='Horners Method'){
+			getShot();
+		}
+		if(atkName=='Soul Harvest'||atkName=='Heal'||atkName=='Summon Satan'||atkName=='Gauß'){
+			oppoHealed();
+		}
+	}
+	/*
+	
+	
+	
+	
+	
+
+	
+	//science attacks
+	
+	
+	
+	
+	
+	
+	
+	*/
+}
+
 function loadFighter(fighter, opponent){
 	
 	
