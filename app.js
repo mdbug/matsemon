@@ -312,8 +312,8 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 						//user with default values was created
 						socket.emit('signUpResponse', {success:true});
 						
-						isValidPassword(data,function(res){
-							if(res){ //wird eingeloggt
+						
+							
 								if(PLAYER_LIST[data.username] != undefined){ //already logged in!
 									socket.emit('alreadyLoggedIn', {});
 								} else {
@@ -332,15 +332,14 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 									});
 									socket.emit('signInResponse', {success:true});
 								}
-							} else { // wird nicht eingeloggt
-								socket.emit('signInResponse', {success:false});
-							}	
-						});
+							
+						
 						
 					});
 				}		
 			});
 		} else {
+			socket.emit('signUpResponse', {success:false});
 			socket.emit('addToInfoBox', {message:'Your username can only contain 1 to 20 characters and your password must be at least 4 characters!'});
 		}
 	});
