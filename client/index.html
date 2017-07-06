@@ -37,7 +37,7 @@
 	h1, h2{
 		text-align:center;
 	}
-	html,body{
+	body{
 		background-image: url('/client/img/blackwhite.jpeg');
 		background-size: cover;
 		background-position: center top;
@@ -297,10 +297,10 @@ var ATTACKS = {
 		<audio id="audio8" controls hidden src="/client/sound/damn.wav">
 		</audio>
 <div class="row">
-	<div id="notSoCoolBrowsers" style="display:none">
-		Your browser is cancer.
+	<div id="notSoCoolBrowsers" style="display:none;color:pink;background-color:black;" class="text-center">
+		<h1>Your browser sucks.</h1>
 	</div>
-	<div id="containerDiv" class="container col-xs-12 col-md-8 col-md-offset-2 "><!-- HTML-STRUKTUR-->
+	<div id="containerDiv" style="display:none;" class="container col-xs-12 col-md-8 col-md-offset-2 "><!-- HTML-STRUKTUR-->
 						<!-- Modal -->
 					<div class="modal fade" id="ranking" tabindex="-1" role="dialog" aria-labelledby="rankingLabel" aria-hidden="true">
 					  <div class="modal-dialog" role="document">
@@ -512,7 +512,7 @@ var ATTACKS = {
 var version = detectIE();
 
 // add details to debug result
-document.getElementById('details').innerHTML = window.navigator.userAgent;
+console.log(window.navigator.userAgent);
 
 /**
  * detect IE
@@ -557,11 +557,15 @@ function detectIE() {
   // other browser
   return false;
 }
-	if(version < 12){
-		containerDiv.style.display = 'none';
+	console.log(version);
+	if(version == false || version >= 12){
+		document.getElementById('containerDiv').style.display = 'block';
+	} else if(version < 12){
+		//document.getElementById('containerDiv').style.display = 'none';
+		document.body.style.backgroundColor = 'black';
+		document.body.style.backgroundImage = '';
 		document.getElementById('notSoCoolBrowsers').style.display = 'block';
 	}
-	
 	var socket = io();
 	/**************************************** VARIABLES BEGIN ***************************************************/
 	/* DOM-ELEMENTS BY ID */
