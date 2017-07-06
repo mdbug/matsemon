@@ -4,7 +4,7 @@ var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
 var io = require('socket.io')(serv,{});
-var port = 8888;
+var port = 65535;
 app.get('/', function(req, res) {
 	res.sendFile(__dirname + '/client/index.html');
 });
