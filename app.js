@@ -4,7 +4,7 @@ var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
 var io = require('socket.io')(serv,{});
-var port = 65535;
+var port = 8080;
 app.get('/', function(req, res) {
 	res.sendFile(__dirname + '/client/index.html');
 });
@@ -261,7 +261,11 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 					fightId:i,
 					disconnect:true,
 				}
+				try{
 				aufgeben(data);
+				} catch (err){
+				console.log('FUCKING ERROR');
+				}
 				delete FIGHT_LIST[i];
 			} else if (socket.id == FIGHT_LIST[i].opponentUsername){
 				data = {
@@ -270,7 +274,11 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 					fightId:i,
 					disconnect:true,
 				}
+				try{
 				aufgeben(data);
+				} catch(err) {
+				console.log('FUCKING ERROR');
+				}
 				delete FIGHT_LIST[i];
 			}
 		}
