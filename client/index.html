@@ -297,6 +297,9 @@ var ATTACKS = {
 		<audio id="audio8" controls hidden src="/client/sound/damn.wav">
 		</audio>
 <div class="row">
+	<div id="notSoCoolBrowsers" style="display:none">
+		Your browser is cancer.
+	</div>
 	<div id="containerDiv" class="container col-xs-12 col-md-8 col-md-offset-2 "><!-- HTML-STRUKTUR-->
 						<!-- Modal -->
 					<div class="modal fade" id="ranking" tabindex="-1" role="dialog" aria-labelledby="rankingLabel" aria-hidden="true">
@@ -505,6 +508,11 @@ var ATTACKS = {
 </div><!-- END OF .row -->
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 <script>
+	if(/*@cc_on!@*/false || !!document.documentMode){
+		containerDiv.style.display = 'none';
+		document.getElementById('notSoCoolBrowsers').style.display = 'block';
+	}
+	
 	var socket = io();
 	/**************************************** VARIABLES BEGIN ***************************************************/
 	/* DOM-ELEMENTS BY ID */
@@ -1010,7 +1018,9 @@ console.log(data.opponentUsername+' agreed your challenge!'); //Nur zum debuggen
 			controlAnim(data.atkName,'oppo');
 		}
 		if(data.myturn){
-			fightDivAttacks.style.visibility = 'visible'; //Hier wird nicht die Technik von display:none/inline-block verwendet damit sich nicht alles verschiebt während des Zugwechsels!
+			setTimeOut(function(){
+				fightDivAttacks.style.visibility = 'visible'; //Hier wird nicht die Technik von display:none/inline-block verwendet damit sich nicht alles verschiebt während des Zugwechsels!
+			},3000);
 		}
 		if((data.newHp+'%') != fightDivMyHp.style.width){
 			if(data.newHp < 0){

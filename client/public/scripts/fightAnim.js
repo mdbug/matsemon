@@ -263,8 +263,8 @@ $('.'+you+'Idle').removeClass('idle');
 $('.opponentIdle').addClass(other+'IdleOpponent');
 $('.'+other+'IdleOpponent').removeClass('opponentIdle');
 
-window.oppoType = 0;	
-window.selfType = 0;
+/*window.oppoType = 0;	
+window.selfType = 0;*/
 
 if(you=="robo"){
 window.selfType = 2;	

@@ -303,7 +303,7 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 	});
 	//SIGNUP
 	socket.on('signUp', function(data){
-		if(data.username.length <= 20){
+		if(data.username.length <= 20 && data.username.length >= 1 && data.password.length >= 4){
 			isUsernameTaken(data,function(res){
 				if(res){
 					socket.emit('signUpResponse', {success:false});
