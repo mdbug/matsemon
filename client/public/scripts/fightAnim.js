@@ -210,7 +210,7 @@ function controlAnim(atkName, who){
 		if(atkName=='Death Grip'||atkName=='Rape'||atkName=='Jesus Punch'||atkName=='Ghoul Explosion'||atkName=='Darkness'||atkName=='Epsilon-Delta-Crit'||atkName=='Sumzing sumzing'){
 			slash();
 		}
-		if(atkName=='Doom'||atkName=='Throw Bible'||atkName=='Holy Pain'||atkName=='Exorcism'||atkName=='Zero-Division'||atkName=='Analysis 2'||atkName=='Exorcism'){
+		if(atkName=='Doom'||atkName=='Throw Bible'||atkName=='Holy Pain'||atkName=='Exorcism'||atkName=='Zero-Division'||atkName=='Analysis 2'||atkName=='Horners Method'){
 			shoot();
 		}
 		if(atkName=='Soul Harvest'||atkName=='Heal'||atkName=='Summon Satan'||atkName=='Gauß'){

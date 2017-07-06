@@ -20,28 +20,28 @@ var PLAYER_LIST = [];
 var READY_LIST = [];
 var ATTACKS = {
 	//mystic attacks
-	'Death Grip':{type:'mystic',strong:'science',dmg:{dmgFrom: 11, dmgTo: 19},hit:0.7,crit:0,selfdmg:0}, //lvl 1
+	'Death Grip':{type:'mystic',strong:'science',dmg:{dmgFrom: 15, dmgTo: 23},hit:0.7,crit:0,selfdmg:0}, //lvl 1
 	'Doom':{type:'mystic',strong:'',dmg:15,hit:1,crit:0.3,selfdmg:4}, //lvl 1
 	'Soul Harvest':{type:'mystic',strong:'holy',dmg:10,hit:0.8,crit:0.3,selfdmg:-4}, //lvl 5
-	'Ghoul Explosion':{type:'mystic',strong:'science',dmg:20,hit:0.8,crit:0.3,selfdmg:8}, //lvl 10
-	'Summon Satan':{type:'mystic',strong:'science',dmg:{dmgFrom:0,dmgTo:66},hit:0.3,crit:0.6,selfdmg:-6}, //lvl 20
+	'Ghoul Explosion':{type:'mystic',strong:'science',dmg:24,hit:0.8,crit:0.3,selfdmg:9}, //lvl 10
+	'Summon Satan':{type:'mystic',strong:'science',dmg:{dmgFrom:0,dmgTo:66},hit:0.2,crit:0.6,selfdmg:-5}, //lvl 20
 	'Darkness':{type:'mystic',strong:'science',dmg:{dmgFrom:0,dmgTo:99},hit:0.33,crit:0,selfdmg:3}, //lvl 15
 	
 	//holy attacks
-	'Holy Pain':{type:'holy',strong:'mystic',dmg:14,hit:0.8,crit:0.3,selfdmg:-2}, //lvl 1
-	'Jesus Punch':{type:'holy',strong:'',dmg:12,hit:1,crit:0.5,selfdmg:1}, //lvl 1
-	'Exorcism':{type:'holy',strong:'mystic',dmg:15,hit:0.9,crit:0,selfdmg:1}, //lvl 10
-	'Heal':{type:'holy',strong:'science',dmg:0,hit:1,crit:0,selfdmg:{dmgFrom: -25, dmgTo: -15}}, //lvl 5
-	'Rape':{type:'holy',strong:'mystic',dmg:17,hit:0.7,crit:0.2,selfdmg:-2}, //lvl 20
-	'Throw Bible':{type:'holy',strong:'mystic',dmg:20,hit:0.5,crit:0.2,selfdmg:-5}, //lvl 15
+	'Holy Pain':{type:'holy',strong:'mystic',dmg:14,hit:0.8,crit:0.3,selfdmg:-1}, //lvl 1
+	'Jesus Punch':{type:'holy',strong:'',dmg:12,hit:1,crit:0.5,selfdmg:2}, //lvl 1
+	'Exorcism':{type:'holy',strong:'mystic',dmg:[dmgFrom:-10,dmgTo:40},hit:0.9,crit:0.5,selfdmg:3}, //lvl 10
+	'Heal':{type:'holy',strong:'science',dmg:0,hit:1,crit:0,selfdmg:{dmgFrom: -20, dmgTo: -7}}, //lvl 5
+	'Rape':{type:'holy',strong:'mystic',dmg:14,hit:0.7,crit:0.2,selfdmg:-3}, //lvl 20
+	'Throw Bible':{type:'holy',strong:'mystic',dmg:21,hit:0.5,crit:0.2,selfdmg:-2}, //lvl 15
 	
 	//science attacks
 	'Zero-Division':{type:'science',strong:'',dmg:100,hit:0.25,crit:0,selfdmg:42}, //lvl 1
 	'Analysis 2':{type:'science',strong:'holy',dmg:13,hit:0.8,crit:0.5,selfdmg:0}, //lvl 10
-	'Epsilon-Delta-Crit':{type:'science',strong:'holy',dmg:14,hit:0.6,crit:1,selfdmg:5}, //lvl 15
-	'Gauß':{type:'science',strong:'mystic',dmg:7,hit:0.9,crit:0.2,selfdmg:-9}, //lvl 1
+	'Epsilon-Delta-Crit':{type:'science',strong:'holy',dmg:20,hit:0.6,crit:1,selfdmg:5}, //lvl 15
+	'Gauß':{type:'science',strong:'mystic',dmg:5,hit:0.9,crit:0.2,selfdmg:-9}, //lvl 1
 	'Sumzing sumzing':{type:'science',strong:'holy',dmg:11,hit:0.9,crit:0.7,selfdmg:0},//lvl 5
-	'Horners Method':{type:'science',strong:'mystic',dmg:26,hit:0.6,crit:0.5,selfdmg:10}, //lvl 20
+	'Horners Method':{type:'science',strong:'mystic',dmg:26,hit:0.6,crit:0.5,selfdmg:8}, //lvl 20
 	
 	//GM-Attacks
 	'OnePunch':{type:'',strong:'holy',dmg:1337,hit:1,crit:1,selfdmg:-1337},
