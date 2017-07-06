@@ -1001,6 +1001,7 @@ console.log(data.opponentUsername+' agreed your challenge!'); //Nur zum debuggen
 			case 'holy': enemyChar = 'santa'; break;
 			case 'science': enemyChar = 'robo'; break;
 		}
+		console.log('mychar:'+myChar+' enemychar:'+enemyChar);
 		loadFighter(myChar,enemyChar); //yannicks embedded function
 		
 		fightDivMyHp.style.backgroundColor = 'rgb(0,255,0)';
@@ -1011,7 +1012,6 @@ console.log(data.opponentUsername+' agreed your challenge!'); //Nur zum debuggen
 		atkName3 = data.atk3;
 		
 		fightDivAttacksButton1.innerHTML = data.atk1;
-		console.log(data.atk1Strong);
 		if(data.atk1Strong != ''){
 			fightDivAttacksButton1.style.backgroundColor = typeColor[data.atk1Strong];
 			fightDivAttacksButton1.style.color = 'black';
@@ -1056,12 +1056,14 @@ console.log(data.opponentUsername+' agreed your challenge!'); //Nur zum debuggen
 	});
 	//END FIGHT
 	socket.on('endFight', function(data){
+		
 		addToChat('Fight is over!', infoColor);
 		audio7.play();
 		//opponentDiv wird eingeblendet und fightDiv wird ausgeblendet
 		setTimeout(function(){
 			opponentDiv.style.display = 'inline-block';
 			fightDiv.style.display = 'none';
+			unloadFighter();
 		},3000);
 	});
 	

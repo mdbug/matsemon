@@ -247,7 +247,14 @@ function controlAnim(atkName, who){
 	
 	*/
 }
-
+var you;
+var other;
+function unloadFighter(){
+$('.'+you+'Idle').addClass('idle');
+$('.idle').removeClass(you+'Idle');
+$('.'+other+'IdleOpponent').addClass('opponentIdle');
+$('.opponentIdle').removeClass(other+'IdleOpponent');
+}
 function loadFighter(fighter, opponent){
 	
 	
@@ -255,8 +262,8 @@ var  ratio =($( window ).width()*0.8)/1600;
  $('.fightWindow').css("zoom",ratio);
 
 
-	var you = fighter;
-	var other  = opponent;
+	you = fighter;
+	other  = opponent;//wird nicht überschrieben beim neuen kampf gegen andere
 $('.fightWindow').show();
 $('.idle').addClass(you+'Idle');
 $('.'+you+'Idle').removeClass('idle');

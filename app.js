@@ -341,7 +341,7 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 				}		
 			});
 		} else {
-			socket.emit('addToInfoBox', {message:'Your username can only contain a maximum of 20 characters!'});
+			socket.emit('addToInfoBox', {message:'Your username can only contain 1 to 20 characters and your password must be at least 4 characters!'});
 		}
 	});
 	
