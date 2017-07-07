@@ -44,9 +44,9 @@ var ATTACKS = {
 	'Horners Method':{type:'science',strong:'mystic',dmg:26,hit:0.6,crit:0.5,selfdmg:8}, //lvl 20
 	
 	//GM-Attacks
-	'OnePunch':{type:'',strong:'holy',dmg:1337,hit:1,crit:1,selfdmg:-1337},
-	'GodMode':{type:'',strong:'',dmg:0,hit:1,crit:0,selfdmg:-200000000},
-	'Aimbot':{type:'',strong:'',dmg:1000,hit:1000,crit:1000,selfdmg:0},
+	'OnePunch':{type:'mystic',strong:'science',dmg:1337,hit:1,crit:1,selfdmg:-1337},
+	'GodMode':{type:'holy',strong:'mystic',dmg:0,hit:1,crit:0,selfdmg:-200000000},
+	'Aimbot':{type:'science',strong:'holy',dmg:1000,hit:1000,crit:1000,selfdmg:0},
 };
 /***************** game code *********************************************************/
 /********** add, get, update User from db *********************************************/

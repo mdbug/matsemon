@@ -207,25 +207,25 @@ $(document).on('keydown', function(e) {
 function controlAnim(atkName, who){
 
 	if(who=='you'){
-		if(atkName=='Death Grip'||atkName=='Rape'||atkName=='Jesus Punch'||atkName=='Ghoul Explosion'||atkName=='Darkness'||atkName=='Epsilon-Delta-Crit'||atkName=='Sumzing sumzing'){
+		if(atkName=='Death Grip'||atkName=='Rape'||atkName=='Jesus Punch'||atkName=='Ghoul Explosion'||atkName=='Darkness'||atkName=='Epsilon-Delta-Crit'||atkName=='Sumzing sumzing'||atkName=='OnePunch'){
 			slash();
 		}
-		if(atkName=='Doom'||atkName=='Throw Bible'||atkName=='Holy Pain'||atkName=='Exorcism'||atkName=='Zero-Division'||atkName=='Analysis 2'||atkName=='Horners Method'){
+		if(atkName=='Doom'||atkName=='Throw Bible'||atkName=='Holy Pain'||atkName=='Exorcism'||atkName=='Zero-Division'||atkName=='Analysis 2'||atkName=='Horners Method'||atkName=='Aimbot'){
 			shoot();
 		}
-		if(atkName=='Soul Harvest'||atkName=='Heal'||atkName=='Summon Satan'||atkName=='Gauß'){
+		if(atkName=='Soul Harvest'||atkName=='Heal'||atkName=='Summon Satan'||atkName=='Gauß'||atkName=='GodMode'){
 			getHealed();
 		}
 		
 	}
 	if(who=='oppo'){
-		if(atkName=='Death Grip'||atkName=='Rape'||atkName=='Jesus Punch'||atkName=='Ghoul Explosion'||atkName=='Darkness'||atkName=='Epsilon-Delta-Crit'||atkName=='Sumzing sumzing'){
+		if(atkName=='Death Grip'||atkName=='Rape'||atkName=='Jesus Punch'||atkName=='Ghoul Explosion'||atkName=='Darkness'||atkName=='Epsilon-Delta-Crit'||atkName=='Sumzing sumzing'||atkName=='OnePunch'){
 			getSlashed();
 		}
-		if(atkName=='Doom'||atkName=='Throw Bible'||atkName=='Holy Pain'||atkName=='Exorcism'||atkName=='Zero-Division'||atkName=='Analysis 2'||atkName=='Horners Method'){
+		if(atkName=='Doom'||atkName=='Throw Bible'||atkName=='Holy Pain'||atkName=='Exorcism'||atkName=='Zero-Division'||atkName=='Analysis 2'||atkName=='Horners Method'||atkName=='Aimbot'){
 			getShot();
 		}
-		if(atkName=='Soul Harvest'||atkName=='Heal'||atkName=='Summon Satan'||atkName=='Gauß'){
+		if(atkName=='Soul Harvest'||atkName=='Heal'||atkName=='Summon Satan'||atkName=='Gauß'||atkName=='GodMode'){
 			oppoHealed();
 		}
 	}
