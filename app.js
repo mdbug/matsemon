@@ -472,6 +472,31 @@ io.sockets.on('connection', function(socket){ //a player connects and creates a 
 		}
 	});
 
+	socket.on('logout', function(){
+		try{
+			var exp = PLAYER_LIST[socket.id].exp;
+			var playerlvl = 1;
+			for(var i = 2; i <= 100; i++){
+				if(exp >= Math.pow(i,2)){
+					playerlvl = i;
+				}
+			}
+			
+			db.player.update({username:socket.id}, {$set: 
+				{exp:PLAYER_LIST[socket.id].exp,
+				lvl:playerlvl,
+				atk1:PLAYER_LIST[socket.id].atk1,
+				atk2:PLAYER_LIST[socket.id].atk2,
+				atk3:PLAYER_LIST[socket.id].atk3,
+				type:PLAYER_LIST[socket.id].type,
+				}});
+			delete PLAYER_LIST[socket.id];
+			numClients--;
+		} catch(err){
+			
+		}
+		busy({username:socket.id});
+	});
 	
 	//GUILD
 	socket.on('guildCreate', function(data){

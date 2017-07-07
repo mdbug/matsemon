@@ -325,6 +325,8 @@ var ATTACKS = {
 				<!-- Button trigger modal --><a id="showRanking" type="button" class="" data-toggle="modal" data-target="#ranking">Ranking</a>
 			</div>
 			<div class="col-xs-6">
+				<a id="logout" type="button">Logout</a>
+			<!--
 				<div class="dropdown">
 					<a style="background-color:rgba(0,0,0,0);border:0px;" class="dropdown-toggle" type="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						Menu
@@ -336,6 +338,7 @@ var ATTACKS = {
 						<li><a class="a" href="#">Facebook</a></li>
 					</ul>
 				</div>
+			-->
 			</div>
 		</div>
 		<div id="headerDiv" class="col-xs-12">
@@ -575,6 +578,7 @@ function detectIE() {
 	var fightDivInfoFightId = document.getElementById('fightDivInfoFightId');
 	var fightDivInfoTurn = document.getElementById('fightDivInfoTurn');
 	var infoMessageDiv = document.getElementById('infoMessageDiv');
+	var logout = document.getElementById('logout');
 	/* COLORS */
 	var normalColor = 'white'; //normale Farbe zb für den "All-Chat" - weiß
 	var whisperColor = '#f828fc'; //Flüster-Farbe - türkis
@@ -758,6 +762,14 @@ console.log('message is now (/g):'+message);
 	fightDivAttacksButton4.onclick = function(){
 		socket.emit('giveUp', {fightId:fightDivInfoFightId.innerHTML, enemyUsername:fightDivInfoEnemyUsername.innerHTML});
 	}
+	
+	logout.onclick = function(){
+		socket.emit('logout', {});
+		signDiv.style.display = 'inline-block';//von none -> block
+		chatDiv.style.display = 'none';
+		opponentDiv.style.display = 'none';
+		loggedIn = false;
+	}
 	/********************************************* CLIENT-EVENTS END ************************************************/
 	/********************************************* SERVER-RESPONSE BEGIN ********************************************/
 	//SIGN-UP-RESPONSE
@@ -937,6 +949,7 @@ console.log(data.opponentUsername+' agreed your challenge!'); //Nur zum debuggen
 	
 	//FIGHT INIT - ALLE DATEN WERDEN ERST EINMAL INITIALISIERT
 	socket.on('beginFight', function(data){
+		logout.style.visibility = 'hidden';
 		//TODO SHOW YOUR TYPE AND ENEMY TYPE
 		var myChar;
 		var enemyChar;
@@ -1005,7 +1018,7 @@ console.log(data.opponentUsername+' agreed your challenge!'); //Nur zum debuggen
 	});
 	//END FIGHT
 	socket.on('endFight', function(data){
-		
+		logout.style.visibility = 'visible';
 		addToChat('Fight is over!', infoColor);
 		audio7.play();
 		//opponentDiv wird eingeblendet und fightDiv wird ausgeblendet
