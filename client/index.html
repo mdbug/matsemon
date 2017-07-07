@@ -1018,7 +1018,6 @@ console.log(data.opponentUsername+' agreed your challenge!'); //Nur zum debuggen
 	});
 	//END FIGHT
 	socket.on('endFight', function(data){
-		logout.style.visibility = 'visible';
 		addToChat('Fight is over!', infoColor);
 		audio7.play();
 		//opponentDiv wird eingeblendet und fightDiv wird ausgeblendet
@@ -1026,6 +1025,7 @@ console.log(data.opponentUsername+' agreed your challenge!'); //Nur zum debuggen
 			opponentDiv.style.display = 'inline-block';
 			fightDiv.style.display = 'none';
 			unloadFighter();
+			logout.style.visibility = 'visible';
 		},3000);
 	});
 	
