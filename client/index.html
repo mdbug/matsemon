@@ -764,6 +764,7 @@ console.log('message is now (/g):'+message);
 	}
 	
 	logout.onclick = function(){
+		chatDivText.innerHTML = '';
 		socket.emit('logout', {});
 		signDiv.style.display = 'inline-block';//von none -> block
 		chatDiv.style.display = 'none';
