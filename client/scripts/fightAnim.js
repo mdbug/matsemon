@@ -207,7 +207,7 @@ $(document).on('keydown', function(e) {
 function controlAnim(atkName, who){
 
 	if(who=='you'){
-		if(atkName=='Death Grip'||atkName=='Rape'||atkName=='Jesus Punch'||atkName=='Ghoul Explosion'||atkName=='Darkness'||atkName=='Epsilon-Delta-Crit'||atkName=='Sumzing sumzing'||atkName=='OnePunch'){
+		if(atkName=='Death Grip'||atkName=='Pray'||atkName=='Jesus Punch'||atkName=='Ghoul Explosion'||atkName=='Darkness'||atkName=='Epsilon-Delta-Crit'||atkName=='Sumzing sumzing'||atkName=='OnePunch'){
 			slash();
 		}
 		if(atkName=='Doom'||atkName=='Throw Bible'||atkName=='Holy Pain'||atkName=='Exorcism'||atkName=='Zero-Division'||atkName=='Analysis 2'||atkName=='Horners Method'||atkName=='Aimbot'){
@@ -219,7 +219,7 @@ function controlAnim(atkName, who){
 		
 	}
 	if(who=='oppo'){
-		if(atkName=='Death Grip'||atkName=='Rape'||atkName=='Jesus Punch'||atkName=='Ghoul Explosion'||atkName=='Darkness'||atkName=='Epsilon-Delta-Crit'||atkName=='Sumzing sumzing'||atkName=='OnePunch'){
+		if(atkName=='Death Grip'||atkName=='Pray'||atkName=='Jesus Punch'||atkName=='Ghoul Explosion'||atkName=='Darkness'||atkName=='Epsilon-Delta-Crit'||atkName=='Sumzing sumzing'||atkName=='OnePunch'){
 			getSlashed();
 		}
 		if(atkName=='Doom'||atkName=='Throw Bible'||atkName=='Holy Pain'||atkName=='Exorcism'||atkName=='Zero-Division'||atkName=='Analysis 2'||atkName=='Horners Method'||atkName=='Aimbot'){
