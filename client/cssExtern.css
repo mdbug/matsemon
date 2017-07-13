@@ -1,0 +1,115 @@
+@font-face {
+		font-family: matsemonHeaderFont;
+		src: url("/client/endor.ttf") format("truetype");
+	}
+	@font-face {
+		font-family: matsemonFont;
+		src: url("/client/vtksdura.ttf") format("truetype");
+	}
+	#headerDiv, #opponentDiv, #chooseDiv, #fightDiv, #signDiv{
+		font-family: ;
+	}
+	h1, h2, .matsemonHeaderFont {
+		font-family: matsemonHeaderFont;
+		font-weight:bold;
+		cursor:default;
+	}
+	h1, h2{
+		text-align:center;
+	}
+	body{
+		background-image: url('/client/img/blackwhite.jpeg');
+		background-size: cover;
+		background-position: center top;
+		background-attachment: fixed;
+		background-repeat: no repeat;
+	}
+	#bestDiv {
+		color:;
+		background-image: url('/client/img/paper.jpg');
+		background-size:;
+		background-position:;
+		background-attachment:;
+		background-repeat:;
+	}
+	.possibleOpponent{
+		cursor: url('/client/img/sword7.png'), auto;
+		background-color: rgba(255,255,255,0.7);
+	}
+	.form-control{
+		border-radius:0px;
+	}
+	.btn{
+		border-radius:0px;
+		border:;
+		width:10em;
+	}
+	.possibleOpponent{
+		text-align:center;
+	}
+	#chatDivFormInput{
+		color:white;
+		background-color:#424242;
+		border:0px solid #282828;
+	}
+	#chatDivFormInput:focus{
+		outline:none;
+		border:0px;
+		background-color:#494949;
+	}
+	.btn-default{
+		color:white;
+		background-color:#333;
+		border:1px solid black;
+	}
+	.possibleAttack{
+		background-color:white;
+		border:1px solid black;
+	}
+	.possibleAttack[name="taken"]{
+		background-color:black;
+		color:white;
+	}
+	#dismissRanking:hover{
+		color:orange;
+	}
+	a, .a{
+		color:orange!important;
+		cursor: url('/client/img/sword7.png'), auto;
+	}
+	a:hover, .a:hover{
+		color:white;
+	}
+	.dropdown-menu{
+		border-radius:0px;
+		border:0px;
+	}
+	#mystic{
+		background-color:#c896ff;
+		background:url('/client/img/mystic.jpg');
+		background-position:center center;
+	}
+	#holy{
+		background-color:#fdff96;
+		background:url('/client/img/holy.jpg');
+		background-position:center center;
+	}
+	#science{
+		background-color:#96ccff;
+		background:url('/client/img/science.jpg');
+		background-position:center center;
+	}
+	#mystic,#science,#holy{
+		border:1px solid black;
+		height:;
+		font-size:1.5em;
+		color:white;
+	}
+	#body,.row{
+	padding:0;
+	margin:0;
+	}
+	#infoMessageDiv{
+		background-color:#fff;
+		border:0px solid black;
+	}
